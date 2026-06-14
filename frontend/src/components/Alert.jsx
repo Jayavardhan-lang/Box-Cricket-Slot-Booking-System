@@ -2,10 +2,10 @@ import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const configs = {
-  success: { icon: CheckCircle, bg: '#f0fdf4', border: '#16a34a', text: '#15803d', iconColor: '#16a34a' },
-  error:   { icon: XCircle,      bg: '#fef2f2', border: '#dc2626', text: '#b91c1c', iconColor: '#dc2626' },
-  warning: { icon: AlertCircle,  bg: '#fffbeb', border: '#d97706', text: '#92400e', iconColor: '#d97706' },
-  info:    { icon: Info,          bg: '#eff6ff', border: '#3b82f6', text: '#1d4ed8', iconColor: '#3b82f6' },
+  success: { icon: CheckCircle, bg: 'rgba(0, 200, 83, 0.1)',  border: '#00c853', text: '#00c853', iconColor: '#00c853' },
+  error:   { icon: XCircle,      bg: 'rgba(255, 23, 68, 0.1)',  border: '#ff1744', text: '#ff1744', iconColor: '#ff1744' },
+  warning: { icon: AlertCircle,  bg: 'rgba(255, 145, 0, 0.1)',  border: '#ff9100', text: '#ff9100', iconColor: '#ff9100' },
+  info:    { icon: Info,          bg: 'rgba(255, 255, 255, 0.05)', border: '#ffd700', text: '#ffd700', iconColor: '#ffd700' },
 }
 
 function Alert({ type = 'info', message, onClose, autoClose = 0 }) {

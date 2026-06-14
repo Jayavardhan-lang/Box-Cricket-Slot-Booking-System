@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, Award, Sparkles, Building } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
@@ -11,36 +11,39 @@ import { API_URL } from '../config'
 const plans = [
   {
     key: 'basic',
-    name: 'Basic',
+    name: 'BASIC CLUB',
     price: 999,
     badge: null,
-    borderColor: '#16a34a',
-    bgClass: 'bg-white',
-    textClass: 'text-[#1a1a1a]',
-    btnClass: 'bg-[#1a5c2a] text-white hover:bg-[#134520]',
-    features: ['4 free slots per month', 'Priority booking', '10% member discount'],
+    borderClass: 'border-white/10 hover:border-primary/50',
+    bgClass: 'bg-brand-card',
+    textClass: 'text-white',
+    priceColorClass: 'text-primary',
+    btnClass: 'border border-primary text-primary hover:bg-primary hover:text-white',
+    features: ['4 free slots per month', 'Priority booking (2 days advance)', '10% member discount on extra slots'],
   },
   {
     key: 'premium',
-    name: 'Premium',
+    name: 'PREMIUM SQUAD',
     price: 1999,
-    badge: 'POPULAR',
-    borderColor: '#f5a623',
-    bgClass: 'bg-white',
-    textClass: 'text-[#1a1a1a]',
-    btnClass: 'bg-[#f5a623] text-white hover:bg-[#d4891a]',
-    features: ['10 free slots per month', 'Priority booking', '20% member discount', 'Tournament fee waiver'],
+    badge: '⚡ MOST POPULAR',
+    borderClass: 'border-primary shadow-[0_0_35px_rgba(0,200,83,0.25)]',
+    bgClass: 'bg-gradient-to-b from-[#0d3320] to-[#111111]',
+    textClass: 'text-white',
+    priceColorClass: 'text-secondary gold-shimmer-text',
+    btnClass: 'bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white shadow-[0_4px_12px_rgba(0,200,83,0.3)]',
+    features: ['10 free slots per month', 'Priority booking (5 days advance)', '20% member discount on extra slots', 'Tournament entry fee waiver (1 per month)'],
   },
   {
     key: 'corporate',
-    name: 'Corporate',
+    name: 'CORPORATE LEAGUE',
     price: 4999,
-    badge: null,
-    borderColor: '#1a5c2a',
-    bgClass: 'bg-[#1a5c2a]',
+    badge: '🏆 GOLD STANDARD',
+    borderClass: 'border-secondary/30 hover:border-secondary',
+    bgClass: 'bg-gradient-to-b from-[#1a1200] to-[#111111]',
     textClass: 'text-white',
-    btnClass: 'bg-white text-[#1a5c2a] hover:bg-gray-100',
-    features: ['Unlimited slots', 'Dedicated account manager', 'Custom tournaments', '30% member discount'],
+    priceColorClass: 'text-secondary',
+    btnClass: 'bg-gradient-to-r from-secondary to-secondary-dark text-black font-extrabold shadow-[0_4px_12px_rgba(255,215,0,0.25)]',
+    features: ['Unlimited monthly play hours', 'Dedicated event account manager', '1 custom corporate tournament/mo', '30% discount on ground banners'],
   },
 ]
 
@@ -48,33 +51,42 @@ const initForm = { name: '', phone: '', email: '', plan_name: 'basic' }
 
 export default function Membership() {
   const [modalPlan, setModalPlan] = useState(null)
-  const [form, setForm]           = useState(initForm)
-  const [errors, setErrors]       = useState({})
+  const [form, setForm] = useState(initForm)
+  const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
-  const [success, setSuccess]     = useState('')
+  const [success, setSuccess] = useState('')
   const [submitError, setSubmitError] = useState('')
 
   const openModal = (plan) => {
     setModalPlan(plan)
     setForm({ ...initForm, plan_name: plan.key })
-    setErrors({}); setSubmitError('')
+    setErrors({})
+    setSubmitError('')
   }
 
   const validate = () => {
     const errs = {}
-    if (!form.name.trim() || form.name.trim().length < 3) errs.name = 'Name must be at least 3 characters'
-    if (!/^\d{10}$/.test(form.phone)) errs.phone = 'Enter a valid 10-digit phone number'
+    if (!form.name.trim() || form.name.trim().length < 3) {
+      errs.name = 'Name must be at least 3 characters'
+    }
+    if (!/^\d{10}$/.test(form.phone)) {
+      errs.phone = 'Enter a valid 10-digit phone number'
+    }
     return errs
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
-    if (Object.keys(errs).length) { setErrors(errs); return }
-    setSubmitting(true); setSubmitError('')
+    if (Object.keys(errs).length) {
+      setErrors(errs)
+      return
+    }
+    setSubmitting(true)
+    setSubmitError('')
     try {
       const { data } = await axios.post(`${API_URL}/memberships`, form)
-      setSuccess(`🎉 ${modalPlan.name} membership activated! Valid for 30 days. ID: #${data.data.membershipId}`)
+      setSuccess(`🎉 ${modalPlan.name} membership activated successfully! Valid for 30 days. Membership ID: #${data.data.membershipId}`)
       setModalPlan(null)
     } catch (e) {
       setSubmitError(e.response?.data?.message || 'Failed to create membership')
@@ -85,101 +97,185 @@ export default function Membership() {
 
   const field = (key) => ({
     value: form[key],
-    onChange: e => { setForm(f => ({ ...f, [key]: e.target.value })); setErrors(er => ({ ...er, [key]: '' })) },
+    onChange: e => {
+      setForm(f => ({ ...f, [key]: e.target.value }))
+      setErrors(er => ({ ...er, [key]: '' }))
+    },
   })
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9f9f9]">
+    <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        <div className="text-center mb-14">
-          <h1 className="text-4xl font-extrabold text-[#1a1a1a] mb-3">Choose Your Membership Plan</h1>
-          <p className="text-gray-500 text-lg">Save more, play more. Cancel anytime.</p>
+        
+        {/* Header */}
+        <div className="text-center mb-16 flex flex-col items-center">
+          <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
+            ⚡ EXCLUSIVE BENEFITS
+          </span>
+          <h1 className="font-display text-5xl sm:text-7xl text-white tracking-tight uppercase leading-none">
+            CHOOSE YOUR PLAN
+          </h1>
+          <div className="w-16 h-1 bg-primary mt-3 mb-4 rounded-full" />
+          <p className="font-sans text-sm text-brand-greyMedium max-w-md">
+            Save more, book in advance, and play on professional terms. Upgrade your cricket experience today.
+          </p>
         </div>
 
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} autoClose={6000} />}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan, i) => (
-            <div
-              key={plan.key}
-              style={{ borderColor: plan.borderColor }}
-              className={`relative rounded-2xl border-2 shadow-lg overflow-hidden flex flex-col
-                ${plan.bgClass} ${i === 1 ? 'md:-mt-4 md:mb-4 md:shadow-2xl scale-100 md:scale-105' : ''}`}
-            >
-              {plan.badge && (
-                <div className="absolute top-4 right-4 bg-[#f5a623] text-white text-xs font-bold px-3 py-1 rounded-full">
-                  {plan.badge}
+        {/* Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch pt-6">
+          {plans.map((plan, i) => {
+            const isPremium = plan.key === 'premium'
+            return (
+              <div
+                key={plan.key}
+                className={`relative rounded-3xl border-2 ${plan.borderClass} ${plan.bgClass} overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-2
+                  ${isPremium ? 'md:-mt-4 md:mb-4 scale-100 md:scale-[1.03] z-10' : ''}`}
+              >
+                {/* Popular / Standard Badge */}
+                {plan.badge && (
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-secondary to-secondary-dark text-black font-accent font-black text-[9px] tracking-widest px-3 py-1.5 rounded-full uppercase">
+                    {plan.badge}
+                  </div>
+                )}
+
+                <div className="p-8 flex-1 flex flex-col">
+                  {/* Icon Representation */}
+                  <div className="mb-6">
+                    {plan.key === 'basic' && <Award className="text-primary" size={36} />}
+                    {plan.key === 'premium' && <Sparkles className="text-secondary" size={36} />}
+                    {plan.key === 'corporate' && <Building className="text-secondary" size={36} />}
+                  </div>
+
+                  <h2 className="font-heading font-black text-xl text-white tracking-wide uppercase mb-3">{plan.name}</h2>
+                  
+                  <div className="flex items-baseline gap-1 mb-8">
+                    <span className={`font-display text-5xl sm:text-6xl ${plan.priceColorClass}`}>₹{plan.price.toLocaleString()}</span>
+                    <span className="font-sans text-xs text-brand-greyMedium lowercase">/month</span>
+                  </div>
+
+                  <div className="w-full h-[1px] bg-white/5 mb-6" />
+
+                  <ul className="space-y-4 flex-1">
+                    {plan.features.map((f, fi) => (
+                      <li key={fi} className="flex items-start gap-3">
+                        <CheckCircle size={16} className="text-primary shrink-0 mt-0.5" />
+                        <span className="font-sans text-xs text-white/85 leading-relaxed">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
-              <div className="p-7 flex-1">
-                <h2 className={`text-xl font-bold mb-2 ${plan.textClass}`}>{plan.name}</h2>
-                <div className={`flex items-baseline gap-1 mb-6 ${plan.textClass}`}>
-                  <span className="text-4xl font-extrabold">₹{plan.price.toLocaleString()}</span>
-                  <span className="text-sm opacity-70">/month</span>
+
+                <div className="p-8 pt-0">
+                  <button
+                    id={`membership-${plan.key}`}
+                    onClick={() => openModal(plan)}
+                    className={`w-full py-3.5 rounded-xl font-heading font-extrabold text-[12px] tracking-wider transition-all cursor-pointer uppercase ${plan.btnClass}`}
+                  >
+                    GET STARTED
+                  </button>
                 </div>
-                <ul className="space-y-3">
-                  {plan.features.map((f, fi) => (
-                    <li key={fi} className="flex items-start gap-2.5">
-                      <CheckCircle size={16} className="text-[#16a34a] shrink-0 mt-0.5" />
-                      <span className={`text-sm ${plan.bgClass === 'bg-[#1a5c2a]' ? 'text-white/80' : 'text-gray-600'}`}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-              <div className="p-6 pt-0">
-                <button
-                  id={`membership-${plan.key}`}
-                  onClick={() => openModal(plan)}
-                  className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:-translate-y-0.5 ${plan.btnClass}`}
-                >
-                  Get Started →
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
-        <p className="text-center text-sm text-gray-400 mt-10">
-          All plans include a 30-day membership. No auto-renewal. Prices are inclusive of taxes.
+        <p className="text-center font-sans text-xs text-brand-greyMedium mt-12 max-w-sm mx-auto leading-relaxed opacity-60">
+          * Memberships are active for 30 days starting from date of payment. No automatic renewals. Prices include utility taxes.
         </p>
       </main>
 
-      {/* Membership Form Modal */}
-      <Modal isOpen={!!modalPlan} onClose={() => setModalPlan(null)} title={`${modalPlan?.name} Membership — ₹${modalPlan?.price}/mo`}>
+      {/* Activation Form Modal */}
+      <Modal isOpen={!!modalPlan} onClose={() => setModalPlan(null)} title="MEMBERSHIP SUBSCRIPTION">
         {submitError && <Alert type="error" message={submitError} onClose={() => setSubmitError('')} />}
+        
+        {modalPlan && (
+          <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-accent text-[10px] text-secondary tracking-widest uppercase font-bold">MEMBERSHIP PLAN</p>
+              <h4 className="font-display text-2xl text-white mt-1 uppercase">
+                {modalPlan.name}
+              </h4>
+              <p className="font-sans text-xs text-white/50 mt-0.5">
+                📅 Plan Validity: 30 days
+              </p>
+            </div>
+            <div className="flex items-center text-3xl font-display text-primary">
+              <IndianRupee size={22} className="text-primary mt-1" />
+              <span>{parseInt(modalPlan.price)}</span>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
-            <input {...field('name')} placeholder="Your full name"
-              className={`w-full border-2 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors
-                ${errors.name ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-[#1a5c2a]'}`} />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
+              FULL NAME *
+            </label>
+            <input
+              {...field('name')}
+              placeholder="Your full name"
+              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+                ${errors.name ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
+            />
+            {errors.name && <p className="text-error text-xs mt-1 font-sans">{errors.name}</p>}
           </div>
+
+          {/* Phone Number */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number *</label>
-            <input {...field('phone')} placeholder="10-digit mobile number" maxLength={10}
-              className={`w-full border-2 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors
-                ${errors.phone ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-[#1a5c2a]'}`} />
-            {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+            <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
+              PHONE NUMBER *
+            </label>
+            <input
+              {...field('phone')}
+              placeholder="10-digit mobile number"
+              maxLength={10}
+              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+                ${errors.phone ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
+            />
+            {errors.phone && <p className="text-error text-xs mt-1 font-sans">{errors.phone}</p>}
           </div>
+
+          {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="text-gray-400">(optional)</span></label>
-            <input {...field('email')} type="email" placeholder="your@email.com"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#1a5c2a] transition-colors" />
+            <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
+              EMAIL ADDRESS
+            </label>
+            <input
+              {...field('email')}
+              type="email"
+              placeholder="your@email.com"
+              className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
+            />
           </div>
-          <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-600">
-            ✅ Plan: <strong>{modalPlan?.name}</strong> | 
-            ✅ Duration: <strong>30 days</strong> | 
-            ✅ Amount: <strong>₹{modalPlan?.price}</strong>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setModalPlan(null)}
-              className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-colors">Cancel</button>
-            <button type="submit" disabled={submitting}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: '#1a5c2a', flex: 2 }}>
-              {submitting ? <><Spinner size="sm" color="white" /> Processing...</> : '✅ Activate Membership'}
+
+          {/* Action Row */}
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => setModalPlan(null)}
+              className="flex-1 py-3.5 border border-white/10 text-white hover:bg-white/5 font-heading font-extrabold text-[12px] tracking-wider rounded-xl transition-all cursor-pointer uppercase"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-[2] py-3.5 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white font-heading font-extrabold text-[12px] tracking-wider rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(0,200,83,0.3)] cursor-pointer uppercase"
+            >
+              {submitting ? (
+                <>
+                  <Spinner size="sm" color="white" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>💳 Activate Membership</span>
+                </>
+              )}
             </button>
           </div>
         </form>

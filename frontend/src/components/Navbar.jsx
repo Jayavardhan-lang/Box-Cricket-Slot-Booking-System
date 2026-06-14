@@ -1,42 +1,63 @@
-import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { Menu, X, Shield } from 'lucide-react'
 
 const navLinks = [
-  { to: '/', label: 'Home' },
-  { to: '/book-slot', label: 'Book a Slot' },
-  { to: '/tournaments', label: 'Tournaments' },
-  { to: '/membership', label: 'Membership' },
-  { to: '/my-bookings', label: 'My Bookings' },
+  { to: '/', label: 'HOME' },
+  { to: '/book-slot', label: 'BOOK SLOT' },
+  { to: '/tournaments', label: 'TOURNAMENTS' },
+  { to: '/membership', label: 'MEMBERSHIP' },
+  { to: '/my-bookings', label: 'MY BOOKINGS' },
   { to: '/faq', label: 'FAQ' },
 ]
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const navLinkClass = ({ isActive }) =>
-    `transition-colors duration-200 font-medium text-sm ${
+    `transition-all duration-300 font-heading text-[13px] font-semibold tracking-[1.5px] py-2 border-b-2 ${
       isActive
-        ? 'text-[#f5a623]'
-        : 'text-white hover:text-[#f5a623]'
+        ? 'text-primary border-primary'
+        : 'text-white/80 border-transparent hover:text-primary hover:border-primary'
     }`
 
   return (
-    <nav style={{ backgroundColor: '#1a5c2a' }} className="sticky top-0 z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-white font-bold text-xl tracking-tight hover:opacity-90 transition-opacity"
-          >
-            <span className="text-2xl">🏏</span>
-            <span>Eagle Box Cricket</span>
+    <nav
+      className={`fixed top-0 left-0 right-0 w-full z-[1000] h-[70px] flex items-center transition-all duration-300 ${
+        scrolled
+          ? 'bg-black/95 backdrop-blur-[20px] border-b border-primary/30 shadow-[0_4px_30px_rgba(0,0,0,0.8)]'
+          : 'bg-black/90 backdrop-blur-[10px] border-b border-primary/20'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-[70px]">
+          
+          {/* Left Section: Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <span className="text-3xl animate-bounce-slow">🏏</span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="font-display text-[28px] text-primary tracking-tight">EAGLE</span>
+                <span className="font-display text-[28px] text-white tracking-tight">BOX CRICKET</span>
+              </div>
+              <span className="font-accent text-[10px] text-secondary tracking-[3px] leading-none mt-0.5">
+                PLAY. WIN. REPEAT.
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Center Section: Navigation Links */}
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={navLinkClass} end={link.to === '/'}>
                 {link.label}
@@ -44,58 +65,69 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Admin Login Link (desktop) */}
-          <div className="hidden md:flex items-center">
+          {/* Right Section: CTA & Admin */}
+          <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={() => navigate('/book-slot')}
+              className="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-bold text-[13px] rounded-full hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,200,83,0.3)] hover:shadow-[0_0_25px_rgba(0,200,83,0.6)] cursor-pointer"
+            >
+              BOOK NOW
+            </button>
             <Link
               to="/admin/login"
-              className="flex items-center gap-1.5 text-xs text-white/70 hover:text-[#f5a623] transition-colors duration-200 border border-white/20 rounded-full px-3 py-1.5 hover:border-[#f5a623]/50"
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 hover:border-primary/50 text-white/60 hover:text-primary transition-all duration-300"
+              title="Admin Panel"
             >
-              <Shield size={12} />
-              Admin
+              <Shield size={14} />
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile Hamburger Menu */}
           <button
-            id="mobile-menu-toggle"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white hover:text-[#f5a623] transition-colors duration-200 p-1"
+            className="md:hidden text-primary hover:text-primary-light transition-all duration-200 p-1 cursor-pointer"
             aria-label="Toggle menu"
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {menuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div
-          style={{ backgroundColor: '#134520' }}
-          className="md:hidden border-t border-white/10 px-4 py-3 flex flex-col gap-3"
+      {/* Mobile Menu Overlay */}
+      <div
+        className={`fixed inset-0 top-[70px] w-full h-[calc(100vh-70px)] bg-black/98 backdrop-blur-[20px] transition-all duration-300 md:hidden flex flex-col items-center justify-center gap-8 ${
+          menuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'
+        }`}
+      >
+        {navLinks.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className="font-heading text-[22px] font-bold tracking-[2px] text-white hover:text-primary transition-colors"
+            end={link.to === '/'}
+            onClick={() => setMenuOpen(false)}
+          >
+            {link.label}
+          </NavLink>
+        ))}
+        <button
+          onClick={() => {
+            setMenuOpen(false)
+            navigate('/book-slot')
+          }}
+          className="mt-4 px-8 py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-bold text-[15px] rounded-full shadow-[0_0_20px_rgba(0,200,83,0.3)] cursor-pointer"
         >
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={navLinkClass}
-              end={link.to === '/'}
-              onClick={() => setMenuOpen(false)}
-            >
-              {link.label}
-            </NavLink>
-          ))}
-          <div className="pt-2 border-t border-white/10">
-            <Link
-              to="/admin/login"
-              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-[#f5a623] transition-colors duration-200"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Shield size={12} />
-              Admin Login
-            </Link>
-          </div>
-        </div>
-      )}
+          BOOK A SLOT
+        </button>
+        <Link
+          to="/admin/login"
+          className="flex items-center gap-2 text-white/50 hover:text-primary font-accent text-sm tracking-[1.5px] mt-4"
+          onClick={() => setMenuOpen(false)}
+        >
+          <Shield size={16} />
+          ADMIN LOGIN
+        </Link>
+      </div>
     </nav>
   )
 }

@@ -6,12 +6,12 @@
  */
 function StatusBadge({ status }) {
   const statusMap = {
-    confirmed:  { bg: '#dcfce7', color: '#16a34a', label: 'Confirmed' },
-    pending:    { bg: '#fef9c3', color: '#d97706', label: 'Pending' },
-    cancelled:  { bg: '#fee2e2', color: '#dc2626', label: 'Cancelled' },
-    available:  { bg: '#dcfce7', color: '#16a34a', label: 'Available' },
-    booked:     { bg: '#fee2e2', color: '#dc2626', label: 'Booked' },
-    blocked:    { bg: '#f3f4f6', color: '#6b7280', label: 'Blocked' },
+    confirmed:  { bg: 'rgba(0, 200, 83, 0.1)',  color: '#00c853', label: 'Confirmed' },
+    pending:    { bg: 'rgba(255, 145, 0, 0.1)',  color: '#ff9100', label: 'Pending' },
+    cancelled:  { bg: 'rgba(255, 23, 68, 0.1)',  color: '#ff1744', label: 'Cancelled' },
+    available:  { bg: 'rgba(0, 200, 83, 0.1)',  color: '#00c853', label: 'Available' },
+    booked:     { bg: 'rgba(255, 23, 68, 0.1)',  color: '#ff1744', label: 'Booked' },
+    blocked:    { bg: 'rgba(255, 255, 255, 0.05)', color: '#9e9e9e', label: 'Blocked' },
   }
 
   const normalizedStatus = status?.toLowerCase() || 'pending'

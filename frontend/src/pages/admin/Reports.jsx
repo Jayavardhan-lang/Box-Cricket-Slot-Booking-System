@@ -13,9 +13,9 @@ function formatDate(d) {
 
 export default function Reports() {
   const [bookings, setBookings] = useState([])
-  const [slots, setSlots]       = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState('')
+  const [slots, setSlots] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     Promise.all([
@@ -32,8 +32,8 @@ export default function Reports() {
   const now = new Date()
   const thisMonth = now.getMonth()
   const lastMonth = (now.getMonth() - 1 + 12) % 12
-  const thisYear  = now.getFullYear()
-  const lastYear  = lastMonth === 11 ? thisYear - 1 : thisYear
+  const thisYear = now.getFullYear()
+  const lastYear = lastMonth === 11 ? thisYear - 1 : thisYear
 
   const paid = bookings.filter(b => b.payment_status === 'paid')
   const thisMonthRev = paid.filter(b => {
@@ -60,12 +60,12 @@ export default function Reports() {
   }, [bookings])
 
   // Occupancy
-  const totalSlots  = slots.length
+  const totalSlots = slots.length
   const bookedSlots = slots.filter(s => s.status === 'booked').length
-  const occupancy   = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0
+  const occupancy = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0
 
   const exportCSV = () => {
-    const headers = ['ID','Customer','Phone','Team','Date','Start Time','Amount','Status','Payment']
+    const headers = ['ID', 'Customer', 'Phone', 'Team', 'Date', 'Start Time', 'Amount', 'Status', 'Payment']
     const rows = bookings.map(b => [
       b.id, b.customer_name, b.phone, b.team_name,
       b.date, b.start_time, b.total_amount,
@@ -73,35 +73,43 @@ export default function Reports() {
     ])
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
     a.href = url; a.download = 'bookings_report.csv'; a.click()
     URL.revokeObjectURL(url)
   }
 
   const StatCard = ({ label, value, sub, color }) => (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-      <p className="text-gray-500 text-sm mb-1">{label}</p>
-      <p className="text-3xl font-extrabold" style={{ color }}>{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+    <div
+      className="bg-brand-card rounded-2xl border border-white/5 p-6 shadow-lg flex flex-col justify-between"
+      style={{ borderLeft: `4px solid ${color}` }}
+    >
+      <div>
+        <p className="font-accent text-[11px] text-brand-greyMedium tracking-wider uppercase mb-2">{label}</p>
+        <p className="font-display text-4xl text-white tracking-wide leading-none">{value}</p>
+      </div>
+      {sub && <p className="font-sans text-[10px] text-brand-greyMedium mt-3 uppercase tracking-wider">{sub}</p>}
     </div>
   )
 
   return (
-    <div className="flex min-h-screen bg-[#f9f9f9]">
+    <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
-      <main className="flex-1 p-6 overflow-y-auto">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <main className="flex-1 p-8 overflow-y-auto max-h-screen">
+        
+        {/* Header Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
-            <h1 className="text-2xl font-extrabold text-[#1a1a1a]">Reports</h1>
-            <p className="text-gray-500 text-sm">Revenue, occupancy, and booking analytics</p>
+            <h1 className="font-display text-4xl text-white tracking-wide uppercase">ANALYTICS & REPORTS</h1>
+            <p className="font-sans text-xs text-brand-greyMedium uppercase mt-1">Financial performance and arena occupancy stats</p>
           </div>
           <button
             id="export-csv-btn"
             onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-all"
-            style={{ backgroundColor: '#1a5c2a' }}>
-            <Download size={16} /> Export CSV
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white font-heading font-bold text-[12px] tracking-wider rounded-xl hover:scale-105 transition-all shadow-[0_4px_12px_rgba(0,200,83,0.2)] cursor-pointer uppercase"
+          >
+            <Download size={14} />
+            <span>Export CSV</span>
           </button>
         </div>
 
@@ -111,49 +119,68 @@ export default function Reports() {
           <div className="flex justify-center py-20"><Spinner size="lg" /></div>
         ) : (
           <>
-            {/* Revenue Summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-              <StatCard label="This Month Revenue" value={`₹${thisMonthRev.toLocaleString()}`} color="#16a34a" />
-              <StatCard label="Last Month Revenue"  value={`₹${lastMonthRev.toLocaleString()}`} color="#d97706" />
-              <StatCard label="Total Revenue (All Time)" value={`₹${totalRev.toLocaleString()}`} sub={`from ${paid.length} paid bookings`} color="#1a5c2a" />
+            {/* Revenue Analytics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <StatCard label="This Month Revenue" value={`₹${thisMonthRev.toLocaleString()}`} color="#00c853" />
+              <StatCard label="Last Month Revenue" value={`₹${lastMonthRev.toLocaleString()}`} color="#ffd700" />
+              <StatCard label="Total Revenue (All Time)" value={`₹${totalRev.toLocaleString()}`} sub={`from ${paid.length} paid bookings`} color="#ff6f00" />
             </div>
 
-            {/* Occupancy */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
-              <h2 className="font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
-                <TrendingUp size={16} className="text-[#1a5c2a]" /> Slot Occupancy
+            {/* Occupancy Chart Section */}
+            <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-8 shadow-2xl">
+              <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
+                <TrendingUp size={15} className="text-primary" />
+                <span>SLOT OCCUPANCY RATIO</span>
               </h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div><p className="text-gray-400 text-xs mb-1">Total Slots</p><p className="text-2xl font-extrabold text-gray-700">{totalSlots}</p></div>
-                <div><p className="text-gray-400 text-xs mb-1">Booked</p><p className="text-2xl font-extrabold text-red-500">{bookedSlots}</p></div>
-                <div><p className="text-gray-400 text-xs mb-1">Occupancy</p><p className="text-2xl font-extrabold text-[#1a5c2a]">{occupancy}%</p></div>
+              
+              <div className="grid grid-cols-3 gap-6 text-left border-b border-white/5 pb-6 mb-6">
+                <div>
+                  <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mb-1">Total Scheduled</p>
+                  <p className="font-display text-3xl text-white">{totalSlots} <span className="font-accent text-xs">Slots</span></p>
+                </div>
+                <div>
+                  <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mb-1">Booked Active</p>
+                  <p className="font-display text-3xl text-error">{bookedSlots} <span className="font-accent text-xs">Slots</span></p>
+                </div>
+                <div>
+                  <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mb-1">Ratio</p>
+                  <p className="font-display text-3xl text-primary">{occupancy}%</p>
+                </div>
               </div>
-              <div className="mt-4 bg-gray-100 rounded-full h-3 overflow-hidden">
-                <div className="h-3 rounded-full transition-all duration-500" style={{ width: `${occupancy}%`, backgroundColor: '#1a5c2a' }} />
+
+              {/* Progress Indicator */}
+              <div className="bg-brand-greyDark rounded-full h-3.5 overflow-hidden border border-white/5">
+                <div
+                  className="h-3.5 rounded-full bg-gradient-to-r from-primary to-primary-light transition-all duration-500 shadow-[0_0_15px_rgba(0,200,83,0.4)]"
+                  style={{ width: `${occupancy}%` }}
+                />
               </div>
             </div>
 
-            {/* Revenue by Date */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <h2 className="font-bold text-[#1a1a1a]">Revenue by Date</h2>
+            {/* Revenue table by date */}
+            <div className="bg-brand-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="px-6 py-5 border-b border-white/5 bg-black/45">
+                <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase">REVENUE BY DATE</h2>
               </div>
+              
               {byDate.length === 0 ? (
-                <p className="text-center text-gray-400 py-10">No booking data</p>
+                <p className="text-center text-brand-greyMedium py-12 text-xs font-sans">No booking metrics recorded yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <thead className="bg-brand-greyDark/40 text-brand-greyMedium text-[10px] font-accent font-bold tracking-widest uppercase border-b border-white/5">
                       <tr>
-                        {['Date','Bookings','Revenue'].map(h => <th key={h} className="px-5 py-3 text-left font-semibold">{h}</th>)}
+                        {['Date', 'Bookings Count', 'Revenue Generated'].map(h => (
+                          <th key={h} className="px-6 py-4 text-left">{h}</th>
+                        ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-white/5 text-xs font-sans text-white/95">
                       {byDate.map(row => (
-                        <tr key={row.date} className="hover:bg-gray-50/50">
-                          <td className="px-5 py-3">{formatDate(row.date)}</td>
-                          <td className="px-5 py-3 font-semibold">{row.bookings}</td>
-                          <td className="px-5 py-3 font-semibold text-[#16a34a]">₹{row.revenue.toLocaleString()}</td>
+                        <tr key={row.date} className="hover:bg-primary/5 transition-colors">
+                          <td className="px-6 py-4 font-semibold">{formatDate(row.date)}</td>
+                          <td className="px-6 py-4 font-bold text-white">{row.bookings}</td>
+                          <td className="px-6 py-4 font-bold text-primary">₹{row.revenue.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>

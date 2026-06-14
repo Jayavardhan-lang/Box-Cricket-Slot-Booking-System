@@ -1,15 +1,20 @@
 export default function SummaryCard({ title, value, icon, color }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5 hover:shadow-md transition-shadow">
+    <div
+      className="bg-brand-card rounded-2xl border border-white/5 shadow-lg p-6 flex items-center gap-5 hover:scale-[1.02] transition-transform duration-300"
+      style={{ borderLeft: `4px solid ${color}` }}
+    >
       <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-        style={{ backgroundColor: color + '15', color }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-inner"
+        style={{ backgroundColor: `${color}15`, color }}
       >
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-gray-500 text-sm truncate">{title}</p>
-        <p className="text-2xl font-extrabold text-[#1a1a1a] mt-0.5 truncate">{value}</p>
+        <p className="font-accent text-[11px] text-brand-greyMedium tracking-wider uppercase truncate">{title}</p>
+        <p className="font-display text-4xl text-white mt-1 truncate" style={{ color }}>
+          {value}
+        </p>
       </div>
     </div>
   )

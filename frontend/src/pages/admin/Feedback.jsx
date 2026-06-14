@@ -9,7 +9,7 @@ function StarRating({ rating, max = 5 }) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: max }, (_, i) => (
-        <span key={i} className={`text-lg ${i < rating ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
+        <span key={i} className={`text-sm sm:text-base ${i < rating ? 'text-secondary font-bold' : 'text-white/5'}`}>★</span>
       ))}
     </div>
   )
@@ -17,8 +17,8 @@ function StarRating({ rating, max = 5 }) {
 
 export default function AdminFeedback() {
   const [feedbackData, setFeedbackData] = useState({ feedback: [], average_rating: 0 })
-  const [loading, setLoading]           = useState(true)
-  const [error, setError]               = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [ratingFilter, setRatingFilter] = useState('')
 
   useEffect(() => {
@@ -38,12 +38,16 @@ export default function AdminFeedback() {
   const avg = parseFloat(average_rating) || 0
 
   return (
-    <div className="flex min-h-screen bg-[#f9f9f9]">
+    <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
-      <main className="flex-1 p-6 overflow-y-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-extrabold text-[#1a1a1a]">Customer Feedback</h1>
-          <p className="text-gray-500 text-sm">{feedback.length} total reviews</p>
+      <main className="flex-1 p-8 overflow-y-auto max-h-screen">
+        
+        {/* Header Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
+          <div>
+            <h1 className="font-display text-4xl text-white tracking-wide uppercase">CUSTOMER FEEDBACK</h1>
+            <p className="font-sans text-xs text-brand-greyMedium uppercase mt-1">{feedback.length} total reviews collected</p>
+          </div>
         </div>
 
         {error && <Alert type="error" message={error} />}
@@ -52,65 +56,86 @@ export default function AdminFeedback() {
           <div className="flex justify-center py-20"><Spinner size="lg" /></div>
         ) : (
           <>
-            {/* Average Rating */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6 flex flex-wrap items-center gap-6">
-              <div className="text-center">
-                <p className="text-6xl font-extrabold text-[#1a5c2a]">{avg.toFixed(1)}</p>
-                <StarRating rating={Math.round(avg)} />
-                <p className="text-gray-400 text-xs mt-1">Average Rating</p>
+            {/* Average Rating Block Card */}
+            <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+              <div className="text-center md:border-r border-white/5 md:pr-8 md:min-w-[150px]">
+                <p className="font-display text-6xl text-primary leading-none mb-1">{avg.toFixed(1)}</p>
+                <div className="flex justify-center mb-2">
+                  <StarRating rating={Math.round(avg)} />
+                </div>
+                <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">Average Rating</p>
               </div>
-              <div className="flex-1 space-y-2 min-w-48">
+
+              {/* Progress Distribution Bars */}
+              <div className="flex-1 w-full space-y-2.5">
                 {[5, 4, 3, 2, 1].map(n => {
                   const count = feedback.filter(f => f.rating === n).length
-                  const pct   = feedback.length > 0 ? (count / feedback.length) * 100 : 0
+                  const pct = feedback.length > 0 ? (count / feedback.length) * 100 : 0
                   return (
                     <div key={n} className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500 w-4">{n}★</span>
-                      <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
-                        <div className="h-2 rounded-full bg-yellow-400 transition-all" style={{ width: `${pct}%` }} />
+                      <span className="font-accent text-[10px] text-brand-greyMedium w-4 font-bold">{n}★</span>
+                      <div className="flex-1 bg-brand-greyDark rounded-full h-2 overflow-hidden border border-white/5">
+                        <div
+                          className="h-2 rounded-full bg-secondary transition-all"
+                          style={{ width: `${pct}%`, boxShadow: '0 0 8px rgba(255,215,0,0.3)' }}
+                        />
                       </div>
-                      <span className="text-xs text-gray-400 w-6">{count}</span>
+                      <span className="font-sans text-[10px] text-brand-greyMedium w-6 text-right font-medium">{count}</span>
                     </div>
                   )
                 })}
               </div>
             </div>
 
-            {/* Filter */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-5 flex flex-wrap gap-2">
+            {/* Filter Buttons */}
+            <div className="bg-brand-card border border-white/5 rounded-2xl p-4 mb-6 flex flex-wrap gap-2.5 shadow-xl">
               {['', '5', '4', '3', '2', '1'].map(r => (
-                <button key={r}
+                <button
+                  key={r}
                   onClick={() => setRatingFilter(r)}
-                  className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors
-                    ${ratingFilter === r ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  style={ratingFilter === r ? { backgroundColor: '#1a5c2a' } : {}}>
-                  {r ? `${r}★` : 'All'}
+                  className={`px-4 py-2 rounded-xl font-heading font-extrabold text-[11px] tracking-wider transition-all cursor-pointer uppercase border
+                    ${ratingFilter === r 
+                      ? 'bg-gradient-to-r from-primary to-primary-dark text-white border-primary shadow-[0_4px_12px_rgba(0,200,83,0.2)]' 
+                      : 'bg-brand-greyDark/50 text-brand-greyMedium border-white/10 hover:border-white/20 hover:text-white'}`}
+                >
+                  {r ? `${r} ★` : 'All Reviews'}
                 </button>
               ))}
             </div>
 
-            {/* Feedback Cards */}
+            {/* Feedback Cards List Grid */}
             {filtered.length === 0 ? (
-              <div className="text-center py-16 text-gray-400">
-                <div className="text-5xl mb-3">💬</div>
-                <p>No feedback {ratingFilter ? `with ${ratingFilter}★ rating` : 'yet'}</p>
+              <div className="text-center py-20 bg-brand-card border border-white/5 rounded-2xl">
+                <div className="text-6xl mb-4 animate-float-slow">💬</div>
+                <h3 className="font-heading font-black text-sm text-white uppercase">No Feedback Found</h3>
+                <p className="font-sans text-xs text-brand-greyMedium mt-1">
+                  {ratingFilter ? `No reviews fit the ${ratingFilter}★ filter criteria.` : 'No comments received.'}
+                </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filtered.map(f => (
-                  <div key={f.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <p className="font-semibold text-[#1a1a1a]">{f.customer_name}</p>
-                        <p className="text-gray-400 text-xs">{f.phone} · Booking #{f.booking_id}</p>
+                  <div key={f.id} className="bg-brand-card border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:scale-[1.01] transition-transform duration-300">
+                    <div>
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                          <p className="font-heading font-black text-xs text-white uppercase">{f.customer_name}</p>
+                          <p className="font-sans text-[10px] text-brand-greyMedium mt-0.5">
+                            {f.phone} • Booking #{f.booking_id}
+                          </p>
+                        </div>
+                        <StarRating rating={f.rating} />
                       </div>
-                      <StarRating rating={f.rating} />
+                      
+                      {f.comment && (
+                        <p className="font-sans text-xs text-white/80 leading-relaxed bg-brand-greyDark/60 border border-white/5 rounded-xl p-3.5 italic">
+                          "{f.comment}"
+                        </p>
+                      )}
                     </div>
-                    {f.comment && (
-                      <p className="text-gray-600 text-sm leading-relaxed bg-gray-50 rounded-xl p-3">{f.comment}</p>
-                    )}
-                    <p className="text-gray-300 text-xs mt-3">
-                      {new Date(f.submitted_at).toLocaleString('en-IN')}
+
+                    <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mt-4">
+                      Submitted on: {new Date(f.submitted_at).toLocaleString('en-IN')}
                     </p>
                   </div>
                 ))}

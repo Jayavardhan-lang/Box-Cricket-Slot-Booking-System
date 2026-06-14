@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, Bot } from 'lucide-react'
+import { Send, Bot, Phone, Mail, Clock, ShieldCheck } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
@@ -48,7 +48,7 @@ const initMessages = [{ from: 'bot', text: "Hi! I'm Eagle Assistant 🏏 How can
 
 export default function FAQ() {
   const [messages, setMessages] = useState(initMessages)
-  const [input, setInput]       = useState('')
+  const [input, setInput] = useState('')
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function FAQ() {
     setMessages(prev => [
       ...prev,
       { from: 'user', text: userMsg },
-      { from: 'bot',  text: reply },
+      { from: 'bot', text: reply },
     ])
     setInput('')
   }
@@ -76,39 +76,59 @@ export default function FAQ() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9f9f9]">
+    <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
-        <div className="mb-10">
-          <h1 className="text-3xl font-extrabold text-[#1a1a1a]">FAQ & Help Chat</h1>
-          <p className="text-gray-500 mt-1">Ask our Eagle Assistant anything, or browse common questions below</p>
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
+        
+        {/* Header */}
+        <div className="mb-12 text-center md:text-left flex flex-col items-center md:items-start">
+          <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
+            ⚡ SUPPORT
+          </span>
+          <h1 className="font-display text-5xl sm:text-6xl text-white tracking-tight uppercase leading-none">
+            FAQ & HELP CENTER
+          </h1>
+          <div className="w-16 h-1 bg-primary mt-3 mb-4 rounded-full" />
+          <p className="font-sans text-sm text-brand-greyMedium max-w-md">
+            Ask our automated Eagle Assistant for instant booking guidance or read through our frequently asked questions.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Chat */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Chat Container */}
+          <div className="bg-brand-card border border-primary/20 rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden h-[580px]">
+            
             {/* Chat Header */}
-            <div style={{ backgroundColor: '#1a5c2a' }} className="px-5 py-4 flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#f5a623] rounded-full flex items-center justify-center text-lg">🏏</div>
-              <div>
-                <p className="text-white font-semibold text-sm">Eagle Assistant</p>
-                <p className="text-white/60 text-xs">Always online</p>
+            <div className="bg-gradient-to-r from-primary to-primary-dark px-6 py-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-black/30 border border-white/20 rounded-full flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,0,0,0.3)]">
+                  🏏
+                </div>
+                <div>
+                  <p className="font-heading font-black text-white text-sm tracking-wide uppercase">EAGLE ASSISTANT</p>
+                  <p className="font-accent text-[10px] text-white/70 tracking-wider flex items-center gap-1.5 uppercase mt-0.5">
+                    <span className="w-2 h-2 bg-[#00e676] rounded-full animate-ping" />
+                    Always Online
+                  </p>
+                </div>
               </div>
+              <ShieldCheck className="text-secondary opacity-80" size={20} />
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 p-4 space-y-3 overflow-y-auto" style={{ height: 360 }}>
+            {/* Messages Area */}
+            <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-black/40">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}>
                   {msg.from === 'bot' && (
-                    <div className="w-7 h-7 bg-[#1a5c2a] rounded-full flex items-center justify-center mr-2 shrink-0 text-sm">🏏</div>
+                    <div className="w-7 h-7 bg-primary/15 border border-primary/20 rounded-full flex items-center justify-center text-xs shrink-0 select-none">
+                      🏏
+                    </div>
                   )}
                   <div
-                    className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed
+                    className={`max-w-[75%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed font-sans shadow-md
                       ${msg.from === 'user'
-                        ? 'text-white rounded-br-none'
-                        : 'bg-gray-100 text-[#1a1a1a] rounded-bl-none'}`}
-                    style={msg.from === 'user' ? { backgroundColor: '#1a5c2a' } : {}}
+                        ? 'bg-gradient-to-r from-primary to-primary-dark text-white rounded-br-none'
+                        : 'bg-brand-greyDark border border-white/5 text-white/90 rounded-bl-none'}`}
                   >
                     {msg.text}
                   </div>
@@ -117,18 +137,21 @@ export default function FAQ() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Quick Replies */}
-            <div className="px-4 py-2 flex gap-2 flex-wrap border-t border-gray-100">
+            {/* Quick Replies Row */}
+            <div className="px-4 py-3 flex gap-2 overflow-x-auto border-t border-white/5 bg-brand-card">
               {quickReplies.map(q => (
-                <button key={q} onClick={() => sendMessage(q)}
-                  className="text-xs px-3 py-1.5 rounded-full border border-[#1a5c2a] text-[#1a5c2a] hover:bg-[#1a5c2a] hover:text-white transition-colors font-medium">
+                <button
+                  key={q}
+                  onClick={() => sendMessage(q)}
+                  className="text-[10px] font-accent font-bold tracking-wider px-3.5 py-1.5 rounded-full border border-primary/30 text-primary hover:bg-primary/10 hover:border-primary transition-all cursor-pointer shrink-0 uppercase"
+                >
                   {q}
                 </button>
               ))}
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-gray-100 flex gap-2">
+            {/* Input Row */}
+            <div className="p-4 border-t border-white/5 flex gap-3 bg-brand-card">
               <input
                 id="chat-input"
                 type="text"
@@ -136,33 +159,51 @@ export default function FAQ() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
                 placeholder="Type your question..."
-                className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#1a5c2a] transition-colors"
+                className="flex-1 bg-brand-greyDark/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
               />
               <button
                 id="chat-send"
                 onClick={() => sendMessage(input)}
-                className="px-4 py-2 rounded-xl text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#1a5c2a' }}
+                className="px-5 py-3 rounded-xl bg-primary hover:bg-primary-light text-white transition-all shadow-[0_4px_12px_rgba(0,200,83,0.2)] cursor-pointer"
               >
-                <Send size={16} />
+                <Send size={15} />
               </button>
             </div>
           </div>
 
-          {/* FAQ Accordion */}
-          <div className="space-y-3">
-            <h2 className="text-lg font-bold text-[#1a1a1a] mb-4">Common Questions</h2>
-            {faqs.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
-            ))}
+          {/* FAQ Accordion Side */}
+          <div className="space-y-4">
+            <h2 className="font-heading font-black text-secondary text-sm tracking-[2px] uppercase mb-4">
+              COMMON QUESTIONS
+            </h2>
+            
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <FAQItem key={i} q={faq.q} a={faq.a} />
+              ))}
+            </div>
 
-            <div style={{ backgroundColor: '#1a5c2a' }} className="rounded-2xl p-5 text-white mt-6">
-              <h3 className="font-bold mb-2">Need more help?</h3>
-              <p className="text-white/80 text-sm mb-3">Our team is available 6 AM – 9 PM daily</p>
-              <div className="space-y-1 text-sm">
-                <p>📞 +91-9876543210</p>
-                <p>📱 WhatsApp: +91-9876543210</p>
-                <p>📧 info@eagleboxcricket.com</p>
+            {/* Helpline box */}
+            <div className="bg-gradient-to-b from-[#0d2818] to-brand-card border border-primary/20 rounded-3xl p-6 shadow-[0_8px_20px_rgba(0,0,0,0.3)] mt-8">
+              <h3 className="font-heading font-black text-white tracking-wide text-sm uppercase mb-3">
+                📞 NEED DIRECT ASSISTANCE?
+              </h3>
+              <p className="font-sans text-xs text-brand-greyMedium mb-4 leading-relaxed">
+                Our operations team is available from 6:00 AM to 9:00 PM daily to assist with field issues or custom tournaments.
+              </p>
+              <div className="space-y-3 font-sans text-xs text-white/90">
+                <div className="flex items-center gap-2">
+                  <Phone size={14} className="text-primary" />
+                  <span>Call Support: <strong>+91 98765 43210</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock size={14} className="text-primary" />
+                  <span>WhatsApp Help: <strong>+91 98765 43210</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail size={14} className="text-primary" />
+                  <span>Email: <strong>info@eagleboxcricket.com</strong></span>
+                </div>
               </div>
             </div>
           </div>
@@ -176,17 +217,21 @@ export default function FAQ() {
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+    <div className="bg-brand-card rounded-2xl border border-white/5 overflow-hidden transition-all duration-300 shadow-sm">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between px-6 py-4.5 text-left hover:bg-white/5 transition-colors cursor-pointer select-none"
       >
-        <span className="font-semibold text-sm text-[#1a1a1a] pr-4">{q}</span>
-        <span className="text-[#1a5c2a] font-bold text-lg shrink-0">{open ? '−' : '+'}</span>
+        <span className="font-heading font-extrabold text-xs text-white uppercase tracking-wide pr-4">{q}</span>
+        <span className="text-primary font-display text-2xl leading-none shrink-0">{open ? '−' : '+'}</span>
       </button>
-      {open && (
-        <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">{a}</div>
-      )}
+      <div
+        className={`transition-all duration-300 overflow-hidden ${
+          open ? 'max-h-[200px] border-t border-white/5 p-6 bg-black/20' : 'max-h-0'
+        }`}
+      >
+        <p className="font-sans text-xs text-brand-greyMedium leading-relaxed">{a}</p>
+      </div>
     </div>
   )
 }

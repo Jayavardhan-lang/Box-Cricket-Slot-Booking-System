@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { CalendarDays, CheckCircle, Trophy, Users, Zap, Clock } from 'lucide-react'
+import { CalendarDays, Zap, Star, Trophy, Users, ShieldAlert, ArrowDown } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
-import StatusBadge from '../components/StatusBadge'
 import { API_URL } from '../config'
 
 const today = new Date().toISOString().split('T')[0]
@@ -19,18 +18,13 @@ function formatTime(t) {
   return `${h12}:${m} ${ampm}`
 }
 
-const features = [
-  { icon: '🏏', title: 'Online Booking',        desc: 'Book slots in seconds, anytime anywhere' },
-  { icon: '✅', title: 'Instant Confirmation',  desc: 'Get your booking ID immediately' },
-  { icon: '🏆', title: 'Tournaments',           desc: 'Join exciting tournaments & win prizes' },
-  { icon: '👥', title: 'Memberships',           desc: 'Save big with monthly membership plans' },
-]
-
 export default function Home() {
   const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(today)
-  const [slots, setSlots]               = useState([])
-  const [loading, setLoading]           = useState(false)
+  const [slots, setSlots] = useState([])
+  const [tournaments, setTournaments] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [tournamentsLoading, setTournamentsLoading] = useState(false)
 
   const fetchSlots = async (date) => {
     setLoading(true)
@@ -44,154 +38,389 @@ export default function Home() {
     }
   }
 
-  useEffect(() => { fetchSlots(selectedDate) }, [selectedDate])
+  const fetchTournaments = async () => {
+    setTournamentsLoading(true)
+    try {
+      const { data } = await axios.get(`${API_URL}/tournaments`)
+      // Take the first 3 upcoming/ongoing tournaments
+      const list = data.data || []
+      const filtered = list.filter(t => t.status !== 'completed').slice(0, 3)
+      setTournaments(filtered)
+    } catch {
+      setTournaments([])
+    } finally {
+      setTournamentsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchSlots(selectedDate)
+  }, [selectedDate])
+
+  useEffect(() => {
+    fetchTournaments()
+  }, [])
 
   const available = slots.filter(s => s.status === 'available')
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9f9f9]">
+    <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
 
-      {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <section
-        style={{ background: 'linear-gradient(135deg, #1a5c2a 0%, #2d7a3f 60%, #134520 100%)' }}
-        className="relative overflow-hidden"
-      >
-        {/* decorative circles */}
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 bg-white translate-x-32 -translate-y-20" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 bg-white -translate-x-20 translate-y-10" />
+      {/* ── 1. Hero Section ────────────────────────────────────────────────── */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-turf-pattern px-4 py-16">
+        {/* Animated Background Gradients & Floating SVGs */}
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-[#0d2818]/60 to-brand-dark z-0" />
+        
+        {/* Decorative Floating Balls */}
+        <div className="absolute top-[20%] left-[10%] text-6xl opacity-15 animate-float-slow select-none hidden md:block">🏏</div>
+        <div className="absolute bottom-[30%] right-[10%] text-7xl opacity-10 animate-float-medium select-none hidden md:block">🏆</div>
+        <div className="absolute top-[15%] right-[20%] text-5xl opacity-5 animate-float-slow select-none hidden md:block">⚾</div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white rounded-full px-4 py-1.5 text-sm font-medium mb-6">
-            <Zap size={14} className="text-[#f5a623]" />
-            Now Open 6:00 AM – 9:00 PM Daily
+        <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-5 py-2 mb-8 animate-pulse">
+            <Zap size={14} className="text-secondary" />
+            <span className="font-accent text-xs font-bold text-secondary tracking-[2px] uppercase">
+              ⚡ HYDERABAD'S PREMIER BOX CRICKET VENUE
+            </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-            Book Your Box Cricket<br />
-            <span className="text-[#f5a623]">Slot Instantly</span>
+
+          {/* Main Display Heading */}
+          <h1 className="leading-tight mb-8">
+            <div className="font-display text-6xl sm:text-8xl md:text-[100px] text-white tracking-tight leading-none">
+              BOOK YOUR
+            </div>
+            <div className="font-display text-6xl sm:text-8xl md:text-[100px] text-primary tracking-tight leading-none">
+              CRICKET SLOT
+            </div>
+            <div className="font-display text-6xl sm:text-8xl md:text-[100px] gold-shimmer-text tracking-tight leading-none">
+              INSTANTLY
+            </div>
           </h1>
-          <p className="text-white/80 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
-            No calls. No WhatsApp. Just pick your slot and play.
+
+          {/* Subtitle */}
+          <p className="font-sans text-base sm:text-xl text-white/70 max-w-xl mb-10 leading-relaxed">
+            No calls. No WhatsApp. Just pick your slot and play on our professional, high-density turf.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+          {/* Stats Row */}
+          <div className="flex items-center justify-center gap-6 sm:gap-12 mb-12 py-4 border-y border-white/10 w-full max-w-2xl">
+            <div className="text-center">
+              <div className="font-display text-3xl sm:text-5xl text-primary">500+</div>
+              <div className="font-accent text-[10px] sm:text-xs text-brand-greyMedium tracking-[1.5px] uppercase mt-1">
+                Matches Played
+              </div>
+            </div>
+            <div className="w-[1px] h-10 bg-secondary/35" />
+            <div className="text-center">
+              <div className="font-display text-3xl sm:text-5xl text-primary">50+</div>
+              <div className="font-accent text-[10px] sm:text-xs text-brand-greyMedium tracking-[1.5px] uppercase mt-1">
+                Teams Registered
+              </div>
+            </div>
+            <div className="w-[1px] h-10 bg-secondary/35" />
+            <div className="text-center">
+              <div className="font-display text-3xl sm:text-5xl text-secondary">4.9★</div>
+              <div className="font-accent text-[10px] sm:text-xs text-brand-greyMedium tracking-[1.5px] uppercase mt-1">
+                Player Rating
+              </div>
+            </div>
+          </div>
+
+          {/* Buttons CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
             <button
-              id="hero-book-btn"
               onClick={() => navigate('/book-slot')}
-              className="px-8 py-3.5 bg-[#f5a623] hover:bg-[#d4891a] text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-lg"
+              className="flex-1 px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-extrabold text-[14px] rounded-full hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,200,83,0.35)] hover:shadow-[0_0_30px_rgba(0,200,83,0.55)] cursor-pointer tracking-wider"
             >
-              🏏 Book Now
+              🏏 BOOK A SLOT NOW
             </button>
             <button
-              id="hero-tournaments-btn"
               onClick={() => navigate('/tournaments')}
-              className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/30 transition-all duration-200 text-lg"
+              className="flex-1 px-8 py-4 bg-transparent border-2 border-secondary/50 text-secondary hover:bg-secondary/10 font-heading font-extrabold text-[14px] rounded-full hover:scale-105 transition-all duration-300 cursor-pointer tracking-wider"
             >
-              🏆 View Tournaments
+              VIEW TOURNAMENTS →
             </button>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="mt-16 flex flex-col items-center gap-1.5 opacity-50 hover:opacity-100 transition-opacity duration-300">
+            <span className="font-accent text-[10px] tracking-[3px] text-brand-greyMedium uppercase">
+              SCROLL TO EXPLORE
+            </span>
+            <ArrowDown size={14} className="animate-bounce" />
           </div>
         </div>
       </section>
 
-      {/* ── Quick Slot Checker ─────────────────────────────────────────── */}
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100">
-            <h2 className="text-xl font-bold text-[#1a1a1a] mb-5 flex items-center gap-2">
-              <CalendarDays size={22} className="text-[#1a5c2a]" />
-              Quick Slot Checker
-            </h2>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-6">
+      {/* ── 2. Quick Slot Checker ─────────────────────────────────────────── */}
+      <section className="relative z-20 px-4 -mt-10 mb-16">
+        <div className="max-w-4xl mx-auto bg-brand-card border border-primary/25 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.8)] glow-green transition-all duration-300">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-white/10 pb-6 mb-6">
+            <div>
+              <h2 className="font-heading font-black text-secondary tracking-[2px] text-sm uppercase mb-1">
+                CHECK AVAILABILITY
+              </h2>
+              <p className="font-sans text-xs text-brand-greyMedium">
+                Find open times and book instantly without phone calls.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
               <input
-                id="home-date-picker"
                 type="date"
                 value={selectedDate}
                 min={today}
                 onChange={e => setSelectedDate(e.target.value)}
-                className="border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#1a5c2a] transition-colors"
+                className="bg-brand-greyDark border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer font-sans"
               />
               {loading ? (
                 <Spinner size="sm" />
               ) : (
-                <span className="text-sm font-medium text-gray-600">
-                  <span className="text-2xl font-bold text-[#1a5c2a]">{available.length}</span>{' '}
-                  slot{available.length !== 1 ? 's' : ''} available on{' '}
-                  {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-display text-4xl text-primary leading-none">{available.length}</span>
+                  <div className="flex flex-col leading-none">
+                    <span className="font-accent text-[11px] font-bold text-brand-greyMedium tracking-wider uppercase">
+                      SLOTS OPEN
+                    </span>
+                    <span className="font-sans text-[10px] text-white/50">
+                      on {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
-
-            {!loading && slots.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                {slots.map(slot => (
-                  <div
-                    key={slot.id}
-                    onClick={() => slot.status === 'available' && navigate('/book-slot')}
-                    className={`rounded-xl p-3 text-center border-2 transition-all duration-200
-                      ${slot.status === 'available'
-                        ? 'border-[#16a34a] bg-green-50 cursor-pointer hover:bg-green-100 hover:scale-105'
-                        : slot.status === 'booked'
-                        ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-70'
-                        : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'}`}
-                  >
-                    <p className="text-xs font-semibold text-gray-700">{formatTime(slot.start_time)}</p>
-                    <p className="text-xs text-gray-500">{formatTime(slot.end_time)}</p>
-                    <p className="text-xs font-bold mt-1"
-                      style={{ color: slot.status === 'available' ? '#16a34a' : '#dc2626' }}>
-                      {slot.status === 'available' ? `₹${slot.price}` : slot.status.toUpperCase()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!loading && slots.length === 0 && (
-              <p className="text-gray-400 text-sm text-center py-4">No slots configured for this date.</p>
-            )}
-
-            {available.length > 0 && (
-              <button
-                onClick={() => navigate('/book-slot')}
-                className="mt-5 w-full sm:w-auto px-6 py-2.5 rounded-xl text-white font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5"
-                style={{ backgroundColor: '#1a5c2a' }}
-              >
-                Book a Slot for This Date →
-              </button>
-            )}
           </div>
+
+          {/* Quick Slots Row */}
+          {!loading && slots.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {slots.map(slot => (
+                <div
+                  key={slot.id}
+                  onClick={() => slot.status === 'available' && navigate('/book-slot')}
+                  className={`rounded-xl p-3.5 text-center border-2 transition-all duration-300 relative overflow-hidden group
+                    ${slot.status === 'available'
+                      ? 'border-primary/40 bg-primary/5 cursor-pointer hover:border-primary hover:bg-primary/10 hover:scale-[1.03]'
+                      : slot.status === 'booked'
+                      ? 'border-red-500/20 bg-red-500/5 cursor-not-allowed opacity-50'
+                      : 'border-white/5 bg-white/5 cursor-not-allowed opacity-40'}`}
+                >
+                  <p className="text-xs font-semibold text-white/95 font-sans">{formatTime(slot.start_time)}</p>
+                  <p className="text-[10px] text-white/50 font-sans mt-0.5">{formatTime(slot.end_time)}</p>
+                  <p className="text-[11px] font-accent font-bold mt-2 tracking-wider"
+                    style={{ color: slot.status === 'available' ? '#00c853' : '#ff1744' }}>
+                    {slot.status === 'available' ? `₹${slot.price}` : slot.status.toUpperCase()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!loading && slots.length === 0 && (
+            <p className="text-white/40 text-sm text-center py-6 font-sans">No slots configured for this date.</p>
+          )}
+
+          {available.length > 0 && (
+            <button
+              onClick={() => navigate('/book-slot')}
+              className="mt-6 w-full py-3 bg-primary text-white font-heading font-extrabold text-xs tracking-[1.5px] rounded-xl hover:bg-primary-light transition-all cursor-pointer uppercase shadow-[0_4px_15px_rgba(0,200,83,0.2)]"
+            >
+              Book a Slot for This Date →
+            </button>
+          )}
         </div>
       </section>
 
-      {/* ── Features Grid ──────────────────────────────────────────────── */}
-      <section className="py-12 px-4 bg-white">
+      {/* ── 3. Features Section ────────────────────────────────────────────── */}
+      <section className="py-24 px-4 bg-gradient-to-b from-brand-dark to-[#050505]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-[#1a1a1a] mb-10">
-            Why Choose <span className="text-[#1a5c2a]">Eagle Box Cricket?</span>
-          </h2>
+          <div className="text-center mb-16">
+            <span className="font-accent text-secondary tracking-[4px] text-xs font-bold uppercase block mb-3">
+              ⚡ WHY CHOOSE EAGLE?
+            </span>
+            <h2 className="font-display text-5xl sm:text-6xl text-white tracking-tight">
+              THE ULTIMATE CRICKET EXPERIENCE
+            </h2>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((f, i) => (
+            {[
+              { icon: '🏏', title: 'INSTANT BOOKING', desc: 'Secure your favorite slots in under 60 seconds. Quick confirmation.' },
+              { icon: '✅', title: 'REAL-TIME SLOTS', desc: 'Live availability updates. What you see is exactly what is open.' },
+              { icon: '🏆', title: 'WEEKLY TOURNAMENTS', desc: 'Register your squad, play high-stakes matches, and win prize pools.' },
+              { icon: '👥', title: 'PREMIUM MEMBERSHIPS', desc: 'Join the club to get up to 30% discount on bookings and priority slots.' },
+            ].map((f, i) => (
               <div
                 key={i}
-                className="group p-6 rounded-2xl border-2 border-gray-100 hover:border-[#1a5c2a] bg-white hover:shadow-lg transition-all duration-300 text-center"
+                className="glass-card glass-card-hover rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300"
               >
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">{f.icon}</div>
-                <h3 className="font-bold text-[#1a1a1a] mb-2">{f.title}</h3>
-                <p className="text-gray-500 text-sm">{f.desc}</p>
+                <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-3xl mb-6 shadow-[0_0_15px_rgba(0,200,83,0.15)]">
+                  {f.icon}
+                </div>
+                <h3 className="font-heading font-black text-white text-base tracking-wide mb-3 uppercase">
+                  {f.title}
+                </h3>
+                <p className="font-sans text-xs text-brand-greyMedium leading-relaxed">
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA Banner ─────────────────────────────────────────────────── */}
-      <section style={{ backgroundColor: '#f5a623' }} className="py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-extrabold text-white mb-3">Ready to Play?</h2>
-          <p className="text-white/90 mb-6">Join hundreds of cricket enthusiasts who book with Eagle every week.</p>
+      {/* ── 4. Tournaments Preview Section ─────────────────────────────────── */}
+      <section className="py-24 px-4 bg-[#0d2818] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-0" />
+        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          {/* Left Text */}
+          <div className="lg:col-span-5 flex flex-col items-start text-left">
+            <span className="font-accent text-secondary tracking-[4px] text-xs font-bold uppercase mb-3">
+              ⚡ LIVE & UPCOMING
+            </span>
+            <h2 className="font-display text-6xl sm:text-7xl text-white tracking-tight mb-4 leading-none">
+              TOURNAMENTS
+            </h2>
+            <p className="font-sans text-sm text-white/70 mb-8 leading-relaxed max-w-sm">
+              Showcase your talent in Hyderabad's most competitive box cricket leagues. Register your team and join the battle!
+            </p>
+            <button
+              onClick={() => navigate('/tournaments')}
+              className="px-6 py-3 bg-secondary hover:bg-secondary-dark text-black font-heading font-extrabold text-[12px] tracking-[1.5px] rounded-full hover:scale-105 transition-all cursor-pointer uppercase shadow-[0_0_20px_rgba(255,215,0,0.25)]"
+            >
+              SEE ALL TOURNAMENTS →
+            </button>
+          </div>
+
+          {/* Right Cards Stack */}
+          <div className="lg:col-span-7 flex flex-col gap-4 w-full">
+            {tournamentsLoading ? (
+              <div className="py-12 flex justify-center"><Spinner /></div>
+            ) : tournaments.length > 0 ? (
+              tournaments.map(t => (
+                <div
+                  key={t.id}
+                  className="bg-black/80 border-l-4 border-primary rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-l-secondary hover:scale-[1.02] transition-all duration-300"
+                >
+                  <div>
+                    <h3 className="font-heading font-black text-white text-base uppercase">{t.name}</h3>
+                    <p className="font-sans text-xs text-brand-greyMedium mt-1">
+                      📅 Date: {new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="text-left sm:text-right">
+                      <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">ENTRY FEE</p>
+                      <p className="font-display text-xl text-secondary">₹{t.entry_fee}</p>
+                    </div>
+                    <button
+                      onClick={() => navigate('/tournaments')}
+                      className="px-4 py-2 bg-primary hover:bg-primary-light text-white font-heading font-bold text-[11px] tracking-wider rounded-lg cursor-pointer uppercase"
+                    >
+                      REGISTER
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Default Fallback cards if no tournaments in database
+              <>
+                <div className="bg-black/80 border-l-4 border-primary rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-heading font-black text-white text-base uppercase">Eagle Summer Cup 2026</h3>
+                    <p className="font-sans text-xs text-brand-greyMedium mt-1">📅 June 20, 2026</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">ENTRY</p>
+                      <p className="font-display text-xl text-secondary">₹500</p>
+                    </div>
+                    <button
+                      onClick={() => navigate('/tournaments')}
+                      className="px-4 py-2 bg-primary hover:bg-primary-light text-white font-heading font-bold text-[11px] tracking-wider rounded-lg cursor-pointer uppercase"
+                    >
+                      REGISTER
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-black/80 border-l-4 border-primary rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-heading font-black text-white text-base uppercase">Corporate Championship League</h3>
+                    <p className="font-sans text-xs text-brand-greyMedium mt-1">📅 June 25, 2026</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">ENTRY</p>
+                      <p className="font-display text-xl text-secondary">₹1,000</p>
+                    </div>
+                    <button
+                      onClick={() => navigate('/tournaments')}
+                      className="px-4 py-2 bg-primary hover:bg-primary-light text-white font-heading font-bold text-[11px] tracking-wider rounded-lg cursor-pointer uppercase"
+                    >
+                      REGISTER
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. Testimonials Section ────────────────────────────────────────── */}
+      <section className="py-24 px-4 bg-brand-dark text-center">
+        <div className="max-w-6xl mx-auto">
+          <span className="font-accent text-secondary tracking-[4px] text-xs font-bold uppercase block mb-3">
+            ⚡ REVIEWS
+          </span>
+          <h2 className="font-display text-5xl text-white tracking-tight mb-16 uppercase">
+            WHAT PLAYERS SAY
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: 'Karan Kumar', team: 'Smashers XI', text: '“The turf is premium quality and the lights are amazing for night matches. Real-time booking has made playing every week super easy!”', rating: 5 },
+              { name: 'Sameer Naidu', team: 'Corporate Strikers', text: '“We use the corporate membership and it saves us a huge amount of money. The booking system is smooth and highly efficient.”', rating: 5 },
+              { name: 'Ananya Rao', team: 'Weekend Warriors', text: '“Super friendly staff, great location, and booking slots is a breeze. Best box cricket in Hyderabad by far!”', rating: 5 },
+            ].map((t, i) => (
+              <div key={i} className="glass-card rounded-2xl p-8 text-left hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(t.rating)].map((_, idx) => (
+                      <Star key={idx} size={16} className="text-secondary fill-secondary" />
+                    ))}
+                  </div>
+                  <p className="font-sans text-xs text-white/80 leading-relaxed mb-6 font-medium italic">
+                    {t.text}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-heading font-black text-sm text-primary uppercase">{t.name}</h4>
+                  <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase mt-0.5">{t.team}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. CTA Banner ─────────────────────────────────────────────────── */}
+      <section className="py-20 px-4 bg-gradient-to-r from-primary to-primary-dark text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10 z-0" />
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <h2 className="font-display text-5xl sm:text-7xl text-white tracking-tight mb-3">
+            READY TO PLAY?
+          </h2>
+          <p className="font-sans text-base sm:text-lg text-white/90 mb-8 max-w-lg leading-relaxed">
+            Reserve your slot online in under 60 seconds and experience top-tier box cricket.
+          </p>
           <button
             onClick={() => navigate('/book-slot')}
-            className="px-8 py-3 bg-white text-[#1a5c2a] font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-md"
+            className="px-10 py-4 bg-white hover:bg-brand-greyLight text-primary-dark font-heading font-extrabold text-[14px] tracking-[2px] rounded-full hover:scale-105 transition-all cursor-pointer uppercase shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
           >
-            Book Your Slot Now →
+            BOOK YOUR SLOT NOW →
           </button>
         </div>
       </section>

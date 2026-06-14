@@ -1,4 +1,4 @@
-function Spinner({ size = 'md', color = '#1a5c2a' }) {
+function Spinner({ size = 'md', color = '#00c853' }) {
   const sizes = { sm: 16, md: 32, lg: 48 }
   const px = sizes[size] || 32
   return (
