@@ -95,7 +95,8 @@ function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 top-[70px] w-full h-[calc(100vh-70px)] bg-black/98 backdrop-blur-[20px] transition-all duration-300 md:hidden flex flex-col items-center justify-center gap-8 ${
+        style={{ backgroundColor: '#0a0a0a' }}
+        className={`fixed inset-0 top-[70px] w-full h-[calc(100vh-70px)] z-[999] transition-all duration-300 md:hidden flex flex-col items-center justify-center gap-0 ${
           menuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'
         }`}
       >
@@ -103,30 +104,36 @@ function Navbar() {
           <NavLink
             key={link.to}
             to={link.to}
-            className="font-heading text-[22px] font-bold tracking-[2px] text-white hover:text-primary transition-colors"
+            className={({ isActive }) =>
+              `w-full text-center py-5 font-heading text-[20px] font-bold tracking-[2px] border-b border-white/10 transition-colors ${
+                isActive ? 'text-primary' : 'text-white hover:text-primary hover:bg-white/5'
+              }`
+            }
             end={link.to === '/'}
             onClick={() => setMenuOpen(false)}
           >
             {link.label}
           </NavLink>
         ))}
-        <button
-          onClick={() => {
-            setMenuOpen(false)
-            navigate('/book-slot')
-          }}
-          className="mt-4 px-8 py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-bold text-[15px] rounded-full shadow-[0_0_20px_rgba(0,200,83,0.3)] cursor-pointer"
-        >
-          BOOK A SLOT
-        </button>
-        <Link
-          to="/admin/login"
-          className="flex items-center gap-2 text-white/50 hover:text-primary font-accent text-sm tracking-[1.5px] mt-4"
-          onClick={() => setMenuOpen(false)}
-        >
-          <Shield size={16} />
-          ADMIN LOGIN
-        </Link>
+        <div className="flex flex-col items-center gap-4 mt-8 px-6 w-full">
+          <button
+            onClick={() => {
+              setMenuOpen(false)
+              navigate('/book-slot')
+            }}
+            className="w-full max-w-xs px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-bold text-[15px] rounded-full shadow-[0_0_20px_rgba(0,200,83,0.4)] cursor-pointer hover:shadow-[0_0_30px_rgba(0,200,83,0.6)] transition-all"
+          >
+            BOOK A SLOT
+          </button>
+          <Link
+            to="/admin/login"
+            className="flex items-center gap-2 text-white/50 hover:text-primary font-accent text-sm tracking-[1.5px]"
+            onClick={() => setMenuOpen(false)}
+          >
+            <Shield size={16} />
+            ADMIN LOGIN
+          </Link>
+        </div>
       </div>
     </nav>
   )
