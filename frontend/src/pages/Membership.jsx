@@ -218,7 +218,7 @@ export default function Membership() {
             <input
               {...field('name')}
               placeholder="Your full name"
-              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+              className={`w-full bg-brand-greyDark border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
                 ${errors.name ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
             />
             {errors.name && <p className="text-error text-xs mt-1 font-sans">{errors.name}</p>}
@@ -233,7 +233,7 @@ export default function Membership() {
               {...field('phone')}
               placeholder="10-digit mobile number"
               maxLength={10}
-              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+              className={`w-full bg-brand-greyDark border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
                 ${errors.phone ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
             />
             {errors.phone && <p className="text-error text-xs mt-1 font-sans">{errors.phone}</p>}
@@ -248,7 +248,7 @@ export default function Membership() {
               {...field('email')}
               type="email"
               placeholder="your@email.com"
-              className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
+              className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
             />
           </div>
 

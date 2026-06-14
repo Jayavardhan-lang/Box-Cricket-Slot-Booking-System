@@ -100,7 +100,7 @@ export default function MyBookings() {
                 value={phone}
                 onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="Enter your 10-digit phone number"
-                className="w-full pl-11 pr-4 py-3.5 bg-brand-greyDark/50 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
+                className="w-full pl-11 pr-4 py-3.5 bg-brand-greyDark border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
               />
             </div>
             <button

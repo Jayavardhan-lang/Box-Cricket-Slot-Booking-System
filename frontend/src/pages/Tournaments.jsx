@@ -235,7 +235,7 @@ export default function Tournaments() {
             <input
               {...field('team_name')}
               placeholder="Your squad name"
-              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+              className={`w-full bg-brand-greyDark border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
                 ${errors.team_name ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
             />
             {errors.team_name && <p className="text-error text-xs mt-1 font-sans">{errors.team_name}</p>}
@@ -249,7 +249,7 @@ export default function Tournaments() {
             <input
               {...field('captain_name')}
               placeholder="Team captain name"
-              className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+              className={`w-full bg-brand-greyDark border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
                 ${errors.captain_name ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
             />
             {errors.captain_name && <p className="text-error text-xs mt-1 font-sans">{errors.captain_name}</p>}
@@ -265,7 +265,7 @@ export default function Tournaments() {
                 {...field('phone')}
                 placeholder="10-digit mobile number"
                 maxLength={10}
-                className={`w-full bg-brand-greyDark/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
+                className={`w-full bg-brand-greyDark border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 transition-all
                   ${errors.phone ? 'border-error/55 focus:ring-error/50 bg-error/5' : 'border-white/10 focus:border-primary focus:ring-primary/50'}`}
               />
               {errors.phone && <p className="text-error text-xs mt-1 font-sans">{errors.phone}</p>}
@@ -279,7 +279,7 @@ export default function Tournaments() {
                 type="number"
                 min={6}
                 max={22}
-                className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
+                className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
               />
             </div>
           </div>
@@ -293,7 +293,7 @@ export default function Tournaments() {
               {...field('email')}
               type="email"
               placeholder="captain@email.com"
-              className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
+              className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
             />
           </div>
 

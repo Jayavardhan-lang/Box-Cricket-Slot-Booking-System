@@ -276,7 +276,7 @@ export default function TournamentManagement() {
                 value={tForm.name}
                 onChange={e => setTForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Summer Cup 2026"
-                className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
+                className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
               />
             </div>
             
@@ -290,7 +290,7 @@ export default function TournamentManagement() {
                   value={tForm.date}
                   min={today}
                   onChange={e => setTForm(f => ({ ...f, date: e.target.value }))}
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
                 />
               </div>
               <div>
@@ -302,7 +302,7 @@ export default function TournamentManagement() {
                   value={tForm.entry_fee}
                   min={0}
                   onChange={e => setTForm(f => ({ ...f, entry_fee: e.target.value }))}
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
                 />
               </div>
             </div>
@@ -317,7 +317,7 @@ export default function TournamentManagement() {
                   value={tForm.max_teams}
                   min={2}
                   onChange={e => setTForm(f => ({ ...f, max_teams: e.target.value }))}
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
                 />
               </div>
               <div>
@@ -403,19 +403,19 @@ export default function TournamentManagement() {
                   value={fForm.team1}
                   onChange={e => setFForm(f => ({ ...f, team1: e.target.value }))}
                   placeholder="Team A Name"
-                  className="bg-brand-greyDark/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-all font-sans"
+                  className="bg-brand-greyDark border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-all font-sans"
                 />
                 <input
                   value={fForm.team2}
                   onChange={e => setFForm(f => ({ ...f, team2: e.target.value }))}
                   placeholder="Team B Name"
-                  className="bg-brand-greyDark/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-all font-sans"
+                  className="bg-brand-greyDark border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-all font-sans"
                 />
                 <input
                   type="date"
                   value={fForm.match_date}
                   onChange={e => setFForm(f => ({ ...f, match_date: e.target.value }))}
-                  className="bg-brand-greyDark/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary transition-all font-sans"
+                  className="bg-brand-greyDark border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary transition-all font-sans"
                 />
                 <button
                   type="submit"

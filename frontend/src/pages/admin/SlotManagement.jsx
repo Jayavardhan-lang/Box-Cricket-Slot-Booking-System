@@ -236,7 +236,7 @@ export default function SlotManagement() {
                 value={form.date}
                 min={today}
                 onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
+                className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
               />
             </div>
             
@@ -249,7 +249,7 @@ export default function SlotManagement() {
                   type="time"
                   value={form.start_time}
                   onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))}
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
                 />
               </div>
               <div>
@@ -260,7 +260,7 @@ export default function SlotManagement() {
                   type="time"
                   value={form.end_time}
                   onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))}
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
                 />
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function SlotManagement() {
                   min={0}
                   onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
                   placeholder="e.g. 1200"
-                  className="w-full bg-brand-greyDark/50 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
+                  className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
                 />
               </div>
               <div>

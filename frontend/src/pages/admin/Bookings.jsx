@@ -109,7 +109,7 @@ export default function AdminBookings() {
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1) }}
               placeholder="Search by name, phone, or ID..."
-              className="w-full pl-11 pr-4 py-3 bg-brand-greyDark/50 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
+              className="w-full pl-11 pr-4 py-3 bg-brand-greyDark border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
             />
           </div>
           <select

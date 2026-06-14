@@ -159,7 +159,7 @@ export default function FAQ() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
                 placeholder="Type your question..."
-                className="flex-1 bg-brand-greyDark/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
+                className="flex-1 bg-brand-greyDark border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-sans"
               />
               <button
                 id="chat-send"

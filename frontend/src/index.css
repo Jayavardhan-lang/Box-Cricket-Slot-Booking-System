@@ -51,6 +51,23 @@
     outline: 2px solid #00c853;
     outline-offset: 4px;
   }
+
+  /* Default dark styling for inputs, selects, textareas to prevent light theme browser/autofill leaks */
+  input, select, textarea {
+    background-color: #161616;
+    color: #ffffff;
+    color-scheme: dark;
+  }
+
+  /* Webkit Autofill Override to keep background dark and text white */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #161616 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
 
 @layer utilities {
