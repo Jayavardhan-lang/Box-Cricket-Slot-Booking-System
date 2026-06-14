@@ -66,11 +66,7 @@ async function initializeDatabase(pool) {
 
       // Skip database creation / use statements if we are already connected to a specific DB on cloud hosts
       if (cleanStmt.toUpperCase().startsWith('CREATE DATABASE') || cleanStmt.toUpperCase().startsWith('USE ')) {
-        try {
-          await conn.query(cleanStmt);
-        } catch (e) {
-          console.log(`ℹ️ Note: Skipped DB creation/selection query (${cleanStmt}): ${e.message}`);
-        }
+        console.log(`ℹ️ Skipping database creation/selection statement: ${cleanStmt}`);
         continue;
       }
 
