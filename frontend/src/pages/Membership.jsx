@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { CheckCircle, Award, Sparkles, Building } from 'lucide-react'
+import { CheckCircle, Award, Sparkles, Building, IndianRupee } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
