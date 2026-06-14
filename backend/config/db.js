@@ -16,15 +16,89 @@ const pool = mysql.createPool({
   connectTimeout: 10000,
 });
 
-// Test connection on startup (non-fatal — only logs)
+const fs = require('fs');
+const path = require('path');
+
+// Test connection and auto-initialize database schema if empty
+async function initializeDatabase(pool) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    console.log('✅ MySQL Database connected successfully');
+
+    // Check if the 'customers' table exists to decide if we need to initialize
+    const [tables] = await conn.query("SHOW TABLES LIKE 'customers'");
+    if (tables.length > 0) {
+      console.log('✨ Database tables already exist. Skipping schema initialization.');
+      return;
+    }
+
+    console.log('🔄 Database is empty. Auto-initializing schema from schema.sql...');
+
+    const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+    if (!fs.existsSync(schemaPath)) {
+      console.warn('⚠️ schema.sql not found at', schemaPath);
+      return;
+    }
+
+    const sqlContent = fs.readFileSync(schemaPath, 'utf8');
+
+    // Split SQL file by semicolons, taking care of comments
+    const statements = sqlContent
+      .split(';')
+      .map(stmt => stmt.trim())
+      .filter(stmt => {
+        // Filter out empty lines or pure comment lines
+        const clean = stmt.replace(/--.*$/gm, '').trim();
+        return clean.length > 0;
+      });
+
+    for (let statement of statements) {
+      // Strip comments line by line
+      const cleanStmt = statement
+        .split('\n')
+        .map(line => line.replace(/--.*$/, '').trim())
+        .filter(line => line.length > 0)
+        .join(' ')
+        .trim();
+
+      if (!cleanStmt) continue;
+
+      // Skip database creation / use statements if we are already connected to a specific DB on cloud hosts
+      if (cleanStmt.toUpperCase().startsWith('CREATE DATABASE') || cleanStmt.toUpperCase().startsWith('USE ')) {
+        try {
+          await conn.query(cleanStmt);
+        } catch (e) {
+          console.log(`ℹ️ Note: Skipped DB creation/selection query (${cleanStmt}): ${e.message}`);
+        }
+        continue;
+      }
+
+      try {
+        await conn.query(cleanStmt);
+      } catch (err) {
+        console.error(`❌ Error executing SQL statement: ${cleanStmt.substring(0, 100)}...`);
+        console.error(`   Details: ${err.message}`);
+        throw err;
+      }
+    }
+
+    console.log('✅ Database schema and seed data initialized successfully!');
+  } catch (err) {
+    console.error('❌ Database initialization failed:', err.message);
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
 pool.getConnection()
   .then((conn) => {
-    console.log('✅ MySQL Database connected successfully');
     conn.release();
+    initializeDatabase(pool);
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
-    console.error('   → Update your .env file with real Aiven MySQL credentials');
+    console.error('   → Make sure your local or Railway MySQL server is running and .env is correct.');
   });
 
 module.exports = pool;
