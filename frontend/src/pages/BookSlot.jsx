@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { CalendarDays, Users, Clock, IndianRupee, Sparkles, CheckCircle } from 'lucide-react'
+import { CalendarDays, Clock, IndianRupee, CheckCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
 import Alert from '../components/Alert'
 import Modal from '../components/Modal'
 import { API_URL } from '../config'
+import { useCustomerAuth } from '../context/CustomerAuthContext'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -33,6 +34,8 @@ const initForm = {
 }
 
 export default function BookSlot() {
+  const { customer } = useCustomerAuth()
+
   const [selectedDate, setSelectedDate] = useState(today)
   const [slots, setSlots] = useState([])
   const [loading, setLoading] = useState(false)
@@ -76,7 +79,12 @@ export default function BookSlot() {
 
   const openModal = (slot) => {
     setActiveSlot(slot)
-    setForm(initForm)
+    // Pre-fill name and email from Google profile if available
+    setForm({
+      ...initForm,
+      name: customer?.name || '',
+      email: customer?.email || '',
+    })
     setErrors({})
     setSubmitError('')
     setModalOpen(true)

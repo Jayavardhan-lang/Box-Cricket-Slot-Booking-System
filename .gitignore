@@ -10,6 +10,7 @@ build/
 
 # Local env files (highly sensitive)
 backend/.env
+frontend/.env
 .env
 .env.local
 .env.development.local

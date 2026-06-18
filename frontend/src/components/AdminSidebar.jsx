@@ -23,11 +23,11 @@ const sidebarLinks = [
 ]
 
 function AdminSidebar() {
-  const { logout } = useAuth()
+  const { logout, adminUsername } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     navigate('/admin/login')
   }
 
@@ -71,7 +71,7 @@ function AdminSidebar() {
         <div className="px-2 py-1.5 flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
           <span className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">
-            operator: eagleadmin
+            operator: {adminUsername || 'admin'}
           </span>
         </div>
         <button

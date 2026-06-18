@@ -1,49 +1,51 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Lock, User, ShieldAlert } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Lock, User, ShieldCheck, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import Alert from '../../components/Alert'
 import Spinner from '../../components/Spinner'
 
 export default function AdminLogin() {
-  const { login, isLoggedIn } = useAuth()
+  const { login, isLoggedIn, authStatus } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // If already authenticated, redirect straight to dashboard
   useEffect(() => {
-    if (isLoggedIn) navigate('/admin/dashboard', { replace: true })
-  }, [isLoggedIn])
+    if (authStatus === 'ready' && isLoggedIn) {
+      navigate('/admin/dashboard', { replace: true })
+    }
+  }, [isLoggedIn, authStatus])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.username || !form.password) {
-      setError('Please enter username and password')
+    if (!form.username.trim() || !form.password) {
+      setError('Please enter your username and password')
       return
     }
     setLoading(true)
     setError('')
-    await new Promise(r => setTimeout(r, 400)) // slight delay for UX
-    const result = login(form.username, form.password)
+    const result = await login(form.username.trim(), form.password)
     if (result.success) {
       navigate('/admin/dashboard', { replace: true })
     } else {
-      setError('Invalid credentials. Try eagleadmin / eagle@123')
+      setError(result.message)
       setLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col md:flex-row relative overflow-hidden">
-      
-      {/* ── Left Side Panel (60% on desktop) ── */}
+
+      {/* ── Left Side Panel ── */}
       <div className="flex-1 md:flex-[1.5] bg-gradient-to-br from-brand-dark via-[#0d2818] to-brand-dark relative flex flex-col items-center justify-center p-8 sm:p-12 border-b md:border-b-0 md:border-r border-primary/25 z-10">
-        
-        {/* Floating background SVGs */}
+
+        {/* Floating background decorations */}
         <div className="absolute top-[10%] left-[10%] text-6xl opacity-5 animate-float-slow select-none">🏏</div>
         <div className="absolute bottom-[10%] right-[10%] text-6xl opacity-5 animate-float-medium select-none">🏆</div>
-        
+
         <div className="max-w-md text-center md:text-left flex flex-col items-center md:items-start">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-3">
             ⚡ GATEWAY
@@ -56,7 +58,7 @@ export default function AdminLogin() {
             Eagle Box Cricket staff administration node. Log in to manage schedules, track revenue metrics, and configure leagues.
           </p>
 
-          {/* Features pills */}
+          {/* Feature pills */}
           <div className="flex flex-wrap justify-center md:justify-start gap-2 max-w-sm">
             <span className="font-accent text-[10px] font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-full uppercase tracking-wider">
               📊 Stats Dashboard
@@ -71,9 +73,19 @@ export default function AdminLogin() {
         </div>
       </div>
 
-      {/* ── Right Side Panel (40% on desktop) ── */}
+      {/* ── Right Side Panel ── */}
       <div className="flex-1 bg-brand-card flex items-center justify-center p-8 sm:p-12 z-10">
         <div className="w-full max-w-md">
+
+          {/* Back to Home */}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 mb-8 text-white/50 hover:text-primary font-heading font-bold text-[12px] tracking-wider uppercase transition-all duration-300 group"
+          >
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform duration-300" />
+            Return to Home
+          </Link>
+
           {/* Header */}
           <div className="text-center md:text-left mb-8">
             <h2 className="font-display text-4xl text-white tracking-wide uppercase leading-none mb-2">ADMIN LOGIN</h2>
@@ -84,8 +96,8 @@ export default function AdminLogin() {
 
           {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
             {/* Username */}
             <div>
               <label className="block font-accent text-[11px] font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
@@ -99,6 +111,7 @@ export default function AdminLogin() {
                   value={form.username}
                   onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
                   placeholder="Enter username"
+                  autoComplete="username"
                   className="w-full pl-11 pr-4 py-3 bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl text-sm text-white focus:outline-none transition-all font-sans"
                 />
               </div>
@@ -117,12 +130,13 @@ export default function AdminLogin() {
                   value={form.password}
                   onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                   placeholder="Enter password"
+                  autoComplete="current-password"
                   className="w-full pl-11 pr-4 py-3 bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl text-sm text-white focus:outline-none transition-all font-sans"
                 />
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Submit */}
             <button
               id="admin-login-btn"
               type="submit"
@@ -140,11 +154,22 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          {/* Credentials Tips */}
-          <div className="mt-8 p-4 bg-brand-greyDark/85 border border-white/5 rounded-2xl text-[11px] text-brand-greyMedium text-center font-sans">
-            Demo Portal Credentials:<br />
-            Username: <strong className="font-mono text-white">eagleadmin</strong> | Password: <strong className="font-mono text-white">eagle@123</strong>
+          {/* ── Authorized Access Notice (replaces demo credentials) ── */}
+          <div className="mt-8 p-5 bg-primary/5 border border-primary/20 rounded-2xl flex flex-col items-center gap-3 text-center">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border border-primary/30">
+              <ShieldCheck size={20} className="text-primary" />
+            </div>
+            <div>
+              <p className="font-heading font-black text-sm text-white tracking-wider uppercase mb-1">
+                🔒 Authorized Administrator Access
+              </p>
+              <p className="font-sans text-[11px] text-brand-greyMedium leading-relaxed">
+                This management portal is restricted to Eagle Box Cricket administrators.
+                Please sign in using your assigned credentials.
+              </p>
+            </div>
           </div>
+
         </div>
       </div>
     </div>
