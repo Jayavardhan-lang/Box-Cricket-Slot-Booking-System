@@ -12,21 +12,19 @@ const pool = mysql.createPool({
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  // Prevent fatal errors from crashing the process
+
   connectTimeout: 10000,
 });
 
 const fs = require('fs');
 const path = require('path');
 
-// Test connection and auto-initialize database schema if empty
 async function initializeDatabase(pool) {
   let conn;
   try {
     conn = await pool.getConnection();
     console.log('✅ MySQL Database connected successfully');
 
-    // Check if the 'customers' table exists to decide if we need to initialize
     const [tables] = await conn.query("SHOW TABLES LIKE 'customers'");
     if (tables.length > 0) {
       console.log('✨ Database tables already exist. Skipping schema initialization.');
@@ -43,18 +41,17 @@ async function initializeDatabase(pool) {
 
     const sqlContent = fs.readFileSync(schemaPath, 'utf8');
 
-    // Split SQL file by semicolons, taking care of comments
     const statements = sqlContent
       .split(';')
       .map(stmt => stmt.trim())
       .filter(stmt => {
-        // Filter out empty lines or pure comment lines
+
         const clean = stmt.replace(/--.*$/gm, '').trim();
         return clean.length > 0;
       });
 
     for (let statement of statements) {
-      // Strip comments line by line
+
       const cleanStmt = statement
         .split('\n')
         .map(line => line.replace(/--.*$/, '').trim())
@@ -64,7 +61,6 @@ async function initializeDatabase(pool) {
 
       if (!cleanStmt) continue;
 
-      // Skip database creation / use statements if we are already connected to a specific DB on cloud hosts
       if (cleanStmt.toUpperCase().startsWith('CREATE DATABASE') || cleanStmt.toUpperCase().startsWith('USE ')) {
         console.log(`ℹ️ Skipping database creation/selection statement: ${cleanStmt}`);
         continue;

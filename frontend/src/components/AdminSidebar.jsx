@@ -40,7 +40,7 @@ function AdminSidebar() {
 
   return (
     <aside className="w-64 min-h-screen bg-black border-r border-white/5 flex flex-col shadow-[4px_0_30px_rgba(0,0,0,0.5)] z-25">
-      {/* Brand Header */}
+
       <div className="px-6 py-6 border-b border-white/5">
         <div className="flex items-center gap-2 group">
           <span className="text-2xl animate-float-slow">🏏</span>
@@ -56,7 +56,6 @@ function AdminSidebar() {
         </div>
       </div>
 
-      {/* Navigation Links */}
       <nav className="flex-1 px-4 py-6 flex flex-col gap-1.5">
         {sidebarLinks.map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to} className={linkClass} id={`sidebar-${label.toLowerCase()}`}>
@@ -66,7 +65,6 @@ function AdminSidebar() {
         ))}
       </nav>
 
-      {/* Admin Session Info & Logout */}
       <div className="p-4 border-t border-white/5 flex flex-col gap-3 bg-brand-card/45">
         <div className="px-2 py-1.5 flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />

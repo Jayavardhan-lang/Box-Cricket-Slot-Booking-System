@@ -1,13 +1,11 @@
 const pool = require('../config/db');
 
-// Plan pricing
 const PLAN_PRICES = {
   basic: 999,
   premium: 1999,
   corporate: 4999,
 };
 
-// ─── CREATE MEMBERSHIP ─────────────────────────────────────────────────────────
 const createMembership = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -30,7 +28,6 @@ const createMembership = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // Create or find customer
     const [existingCustomer] = await conn.query(
       'SELECT * FROM customers WHERE phone = ?',
       [phone]
@@ -47,7 +44,6 @@ const createMembership = async (req, res) => {
       customerId = customerResult.insertId;
     }
 
-    // Calculate dates (30-day membership)
     const membershipStart = start_date || new Date().toISOString().split('T')[0];
     const endDateObj = new Date(membershipStart);
     endDateObj.setDate(endDateObj.getDate() + 30);
@@ -84,7 +80,6 @@ const createMembership = async (req, res) => {
   }
 };
 
-// ─── GET ALL MEMBERSHIPS ───────────────────────────────────────────────────────
 const getAllMemberships = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -100,7 +95,6 @@ const getAllMemberships = async (req, res) => {
   }
 };
 
-// ─── GET MEMBERSHIP BY ID ──────────────────────────────────────────────────────
 const getMembershipById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -123,7 +117,6 @@ const getMembershipById = async (req, res) => {
   }
 };
 
-// ─── UPDATE MEMBERSHIP ─────────────────────────────────────────────────────────
 const updateMembership = async (req, res) => {
   try {
     const { id } = req.params;

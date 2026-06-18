@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// ─── CREATE BOOKING ────────────────────────────────────────────────────────────
 const createBooking = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -9,7 +8,6 @@ const createBooking = async (req, res) => {
       team_name, num_players, slot_id, notes,
     } = req.body;
 
-    // 1. Validate required fields
     if (!name || !phone || !team_name || !num_players || !slot_id) {
       return res.status(400).json({
         success: false,
@@ -17,7 +15,6 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // 2. Validate num_players
     const players = parseInt(num_players);
     if (players < 6 || players > 22) {
       return res.status(400).json({
@@ -28,7 +25,6 @@ const createBooking = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // 3. Check slot availability
     const [slotRows] = await conn.query(
       "SELECT * FROM slots WHERE id = ? AND status = 'available'",
       [slot_id]
@@ -42,7 +38,6 @@ const createBooking = async (req, res) => {
     }
     const slot = slotRows[0];
 
-    // 4. Create or find customer
     const [existingCustomer] = await conn.query(
       'SELECT * FROM customers WHERE phone = ?',
       [phone]
@@ -59,7 +54,6 @@ const createBooking = async (req, res) => {
       customerId = customerResult.insertId;
     }
 
-    // 5. Create booking
     const totalAmount = parseFloat(slot.price);
     const [bookingResult] = await conn.query(
       `INSERT INTO bookings 
@@ -69,13 +63,11 @@ const createBooking = async (req, res) => {
     );
     const bookingId = bookingResult.insertId;
 
-    // 6. Mark slot as booked
     await conn.query(
       "UPDATE slots SET status = 'booked' WHERE id = ?",
       [slot_id]
     );
 
-    // 7. Create occupancy record
     await conn.query(
       `INSERT INTO occupancy (slot_id, date, is_occupied, revenue_generated)
        VALUES (?, ?, TRUE, ?)`,
@@ -98,7 +90,6 @@ const createBooking = async (req, res) => {
   }
 };
 
-// ─── GET ALL BOOKINGS ──────────────────────────────────────────────────────────
 const getAllBookings = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -117,7 +108,6 @@ const getAllBookings = async (req, res) => {
   }
 };
 
-// ─── GET BOOKING BY ID ─────────────────────────────────────────────────────────
 const getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -136,7 +126,6 @@ const getBookingById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    // Also get payment records for this booking
     const [payments] = await pool.query(
       'SELECT * FROM payments WHERE booking_id = ? ORDER BY paid_at DESC',
       [id]
@@ -153,7 +142,6 @@ const getBookingById = async (req, res) => {
   }
 };
 
-// ─── GET BOOKINGS BY PHONE ─────────────────────────────────────────────────────
 const getBookingsByPhone = async (req, res) => {
   try {
     const { phone } = req.params;
@@ -175,7 +163,6 @@ const getBookingsByPhone = async (req, res) => {
   }
 };
 
-// ─── UPDATE BOOKING STATUS ─────────────────────────────────────────────────────
 const updateBookingStatus = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -190,7 +177,6 @@ const updateBookingStatus = async (req, res) => {
       });
     }
 
-    // Check booking exists
     const [existing] = await conn.query('SELECT * FROM bookings WHERE id = ?', [id]);
     if (existing.length === 0) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -198,13 +184,12 @@ const updateBookingStatus = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // If cancelling, free the slot
     if (status === 'cancelled') {
       await conn.query(
         "UPDATE slots SET status = 'available' WHERE id = ?",
         [existing[0].slot_id]
       );
-      // Remove occupancy record
+
       await conn.query(
         'DELETE FROM occupancy WHERE slot_id = ?',
         [existing[0].slot_id]
@@ -232,7 +217,6 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
-// ─── UPDATE PAYMENT STATUS ─────────────────────────────────────────────────────
 const updatePaymentStatus = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -256,13 +240,11 @@ const updatePaymentStatus = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // Update booking payment status
     await conn.query(
       'UPDATE bookings SET payment_status = ? WHERE id = ?',
       [payment_status, id]
     );
 
-    // Insert payment record
     await conn.query(
       `INSERT INTO payments (booking_id, amount, payment_method, payment_status)
        VALUES (?, ?, ?, ?)`,

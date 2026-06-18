@@ -22,7 +22,6 @@ export default function TournamentManagement() {
   const [tSubmitting, setTSub] = useState(false)
   const [tFormErr, setTFormErr] = useState('')
 
-  // Sub-modals
   const [regModal, setRegModal] = useState(null)
   const [regList, setRegList] = useState([])
   const [regLoading, setRegLoading] = useState(false)
@@ -162,8 +161,7 @@ export default function TournamentManagement() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header Controls */}
+
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">TOURNAMENT CONTROL</h1>
@@ -264,7 +262,6 @@ export default function TournamentManagement() {
           </div>
         )}
 
-        {/* Add Tournament Modal */}
         <Modal isOpen={tModal} onClose={() => setTModal(false)} title="Create League Tournament">
           {tFormErr && <Alert type="error" message={tFormErr} />}
           <form onSubmit={createTournament} className="space-y-4">
@@ -279,7 +276,7 @@ export default function TournamentManagement() {
                 className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-sans"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
@@ -362,7 +359,6 @@ export default function TournamentManagement() {
           </form>
         </Modal>
 
-        {/* Registrations Modal */}
         <Modal isOpen={!!regModal} onClose={() => setRegModal(null)} title={`REGISTRATIONS — ${regModal?.name}`} maxWidth="max-w-2xl">
           {regLoading ? <div className="flex justify-center py-8"><Spinner /></div> : (
             regList.length === 0 ? (
@@ -393,11 +389,10 @@ export default function TournamentManagement() {
           )}
         </Modal>
 
-        {/* Fixtures Modal */}
         <Modal isOpen={!!fixModal} onClose={() => setFixModal(null)} title={`BRACKET FIXTURES — ${fixModal?.name}`} maxWidth="max-w-2xl">
           {fixLoading ? <div className="flex justify-center py-8"><Spinner /></div> : (
             <>
-              {/* Fixture Add Form */}
+
               <form onSubmit={createFixture} className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 pb-6 border-b border-white/5">
                 <input
                   value={fForm.team1}
@@ -426,7 +421,6 @@ export default function TournamentManagement() {
                 </button>
               </form>
 
-              {/* Fixtures List */}
               <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                 {fixtures.length === 0 ? (
                   <p className="text-brand-greyMedium text-xs text-center py-6 font-sans">No matches scheduled for this tournament yet.</p>
@@ -474,7 +468,6 @@ export default function TournamentManagement() {
           )}
         </Modal>
 
-        {/* Points Table Modal */}
         <Modal isOpen={!!ptModal} onClose={() => setPtModal(null)} title={`LEAGUE STANDINGS — ${ptModal?.name}`} maxWidth="max-w-xl">
           {ptLoading ? <div className="flex justify-center py-8"><Spinner /></div> : (
             points.length === 0 ? (

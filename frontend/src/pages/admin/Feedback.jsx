@@ -41,8 +41,7 @@ export default function AdminFeedback() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header Controls */}
+
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">CUSTOMER FEEDBACK</h1>
@@ -56,7 +55,7 @@ export default function AdminFeedback() {
           <div className="flex justify-center py-20"><Spinner size="lg" /></div>
         ) : (
           <>
-            {/* Average Rating Block Card */}
+
             <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
               <div className="text-center md:border-r border-white/5 md:pr-8 md:min-w-[150px]">
                 <p className="font-display text-6xl text-primary leading-none mb-1">{avg.toFixed(1)}</p>
@@ -66,7 +65,6 @@ export default function AdminFeedback() {
                 <p className="font-accent text-[10px] text-brand-greyMedium tracking-wider uppercase">Average Rating</p>
               </div>
 
-              {/* Progress Distribution Bars */}
               <div className="flex-1 w-full space-y-2.5">
                 {[5, 4, 3, 2, 1].map(n => {
                   const count = feedback.filter(f => f.rating === n).length
@@ -87,7 +85,6 @@ export default function AdminFeedback() {
               </div>
             </div>
 
-            {/* Filter Buttons */}
             <div className="bg-brand-card border border-white/5 rounded-2xl p-4 mb-6 flex flex-wrap gap-2.5 shadow-xl">
               {['', '5', '4', '3', '2', '1'].map(r => (
                 <button
@@ -103,7 +100,6 @@ export default function AdminFeedback() {
               ))}
             </div>
 
-            {/* Feedback Cards List Grid */}
             {filtered.length === 0 ? (
               <div className="text-center py-20 bg-brand-card border border-white/5 rounded-2xl">
                 <div className="text-6xl mb-4 animate-float-slow">💬</div>
@@ -126,7 +122,7 @@ export default function AdminFeedback() {
                         </div>
                         <StarRating rating={f.rating} />
                       </div>
-                      
+
                       {f.comment && (
                         <p className="font-sans text-xs text-white/80 leading-relaxed bg-brand-greyDark/60 border border-white/5 rounded-xl p-3.5 italic">
                           "{f.comment}"

@@ -74,8 +74,7 @@ export default function BookingDetail() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Navigation Back */}
+
         <div className="mb-6">
           <button
             onClick={() => navigate('/admin/bookings')}
@@ -97,7 +96,7 @@ export default function BookingDetail() {
           </div>
         ) : (
           <>
-            {/* Booking Header Status Info */}
+
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/5 pb-6 mb-8">
               <div>
                 <h1 className="font-display text-4xl text-white tracking-wide uppercase leading-none">BOOKING #{booking.id}</h1>
@@ -111,10 +110,8 @@ export default function BookingDetail() {
               </div>
             </div>
 
-            {/* Split Info Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              
-              {/* Customer Info Card */}
+
               <div className="bg-brand-card border border-white/5 rounded-2xl p-6">
                 <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
                   <User size={15} className="text-primary" />
@@ -128,7 +125,6 @@ export default function BookingDetail() {
                 </div>
               </div>
 
-              {/* Slot Details Card */}
               <div className="bg-brand-card border border-white/5 rounded-2xl p-6">
                 <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
                   <CalendarDays size={15} className="text-primary" />
@@ -143,7 +139,6 @@ export default function BookingDetail() {
               </div>
             </div>
 
-            {/* Booking Specifics */}
             <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-6">
               <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
                 <ClipboardList size={15} className="text-primary" />
@@ -157,7 +152,6 @@ export default function BookingDetail() {
               </div>
             </div>
 
-            {/* Payment Ledger */}
             {booking.payments?.length > 0 && (
               <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-6">
                 <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
@@ -189,7 +183,6 @@ export default function BookingDetail() {
               </div>
             )}
 
-            {/* Admin Management Commands */}
             <div className="bg-brand-card border border-white/5 rounded-2xl p-6">
               <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6">ADMINISTRATOR COMMANDS</h2>
               <div className="flex flex-wrap gap-4">

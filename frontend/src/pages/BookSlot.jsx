@@ -49,7 +49,6 @@ export default function BookSlot() {
   const [successMsg, setSuccessMsg] = useState('')
   const [submitError, setSubmitError] = useState('')
 
-  // Generate 7 days carousel
   const dateCarousel = []
   for (let i = 0; i < 7; i++) {
     const d = new Date()
@@ -79,7 +78,7 @@ export default function BookSlot() {
 
   const openModal = (slot) => {
     setActiveSlot(slot)
-    // Pre-fill name and email from Google profile if available
+
     setForm({
       ...initForm,
       name: customer?.name || '',
@@ -145,7 +144,7 @@ export default function BookSlot() {
       <Navbar />
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        {/* Header */}
+
         <div className="mb-12 text-center md:text-left flex flex-col items-center md:items-start">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
             ⚡ RESERVATIONS
@@ -174,7 +173,6 @@ export default function BookSlot() {
           </div>
         )}
 
-        {/* Date Selection Panel */}
         <div className="bg-brand-card border border-primary/20 rounded-3xl p-6 mb-12 shadow-[0_10px_35px_rgba(0,0,0,0.5)]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-3">
@@ -183,8 +181,7 @@ export default function BookSlot() {
                 SELECT MATCH DATE
               </h2>
             </div>
-            
-            {/* Standard date picker fallback */}
+
             <div className="flex items-center gap-2">
               <span className="text-xs text-brand-greyMedium font-sans">Or Choose Date:</span>
               <input
@@ -198,7 +195,6 @@ export default function BookSlot() {
             </div>
           </div>
 
-          {/* Date Pills Carousel */}
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
             {dateCarousel.map((item) => {
               const isActive = selectedDate === item.dateStr
@@ -228,7 +224,6 @@ export default function BookSlot() {
 
         {fetchError && <Alert type="error" message={fetchError} />}
 
-        {/* Available Slots Title */}
         <div className="flex items-center gap-2.5 mb-6 justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-primary animate-ping" />
@@ -266,7 +261,7 @@ export default function BookSlot() {
                       ? 'border-red-500/10 bg-red-500/5 opacity-55' 
                       : 'border-white/5 bg-black/40 opacity-40'}`}
                 >
-                  {/* Status Badge */}
+
                   <div className="flex items-start justify-between gap-4 mb-6">
                     <div className="flex flex-col">
                       <span className="font-accent text-[10px] text-secondary tracking-widest uppercase font-bold">
@@ -291,7 +286,6 @@ export default function BookSlot() {
                     </span>
                   </div>
 
-                  {/* Pricing / Booking Trigger */}
                   <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between gap-4">
                     <div className="flex items-center text-2xl font-display text-white">
                       <IndianRupee size={16} className="text-primary mt-0.5" />
@@ -325,7 +319,6 @@ export default function BookSlot() {
         )}
       </main>
 
-      {/* Booking Form Modal */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -352,7 +345,7 @@ export default function BookSlot() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
+
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               FULL NAME *
@@ -366,7 +359,6 @@ export default function BookSlot() {
             {errors.name && <p className="text-error text-xs mt-1 font-sans">{errors.name}</p>}
           </div>
 
-          {/* Phone Number */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               PHONE NUMBER *
@@ -381,7 +373,6 @@ export default function BookSlot() {
             {errors.phone && <p className="text-error text-xs mt-1 font-sans">{errors.phone}</p>}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               EMAIL ADDRESS
@@ -394,7 +385,6 @@ export default function BookSlot() {
             />
           </div>
 
-          {/* Team Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
@@ -424,7 +414,6 @@ export default function BookSlot() {
             </div>
           </div>
 
-          {/* Customer Type */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               CUSTOMER TYPE
@@ -439,7 +428,6 @@ export default function BookSlot() {
             </select>
           </div>
 
-          {/* Notes */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               SPECIAL INSTRUCTIONS
@@ -452,7 +440,6 @@ export default function BookSlot() {
             />
           </div>
 
-          {/* Action Row */}
           <div className="flex gap-4 pt-4">
             <button
               type="button"

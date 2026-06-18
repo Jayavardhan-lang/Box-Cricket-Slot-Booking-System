@@ -82,8 +82,7 @@ export default function AdminBookings() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header Controls */}
+
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">ALL BOOKINGS</h1>
@@ -101,7 +100,6 @@ export default function AdminBookings() {
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} autoClose={3000} />}
 
-        {/* Filters Panel */}
         <div className="bg-brand-card border border-primary/20 rounded-3xl p-5 mb-8 flex flex-wrap gap-4 shadow-xl">
           <div className="relative flex-1 min-w-[200px]">
             <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
@@ -211,7 +209,6 @@ export default function AdminBookings() {
                   </table>
                 </div>
 
-                {/* Pagination Controls */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 py-6 border-t border-white/5 bg-black/45">
                     <button

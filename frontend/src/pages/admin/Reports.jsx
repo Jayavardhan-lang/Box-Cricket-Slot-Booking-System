@@ -46,7 +46,6 @@ export default function Reports() {
   }).reduce((s, b) => s + parseFloat(b.total_amount || 0), 0)
   const totalRev = paid.reduce((s, b) => s + parseFloat(b.total_amount || 0), 0)
 
-  // Group by date
   const byDate = useMemo(() => {
     const map = {}
     bookings.forEach(b => {
@@ -59,7 +58,6 @@ export default function Reports() {
     return Object.values(map).sort((a, b) => b.date.localeCompare(a.date))
   }, [bookings])
 
-  // Occupancy
   const totalSlots = slots.length
   const bookedSlots = slots.filter(s => s.status === 'booked').length
   const occupancy = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0
@@ -96,8 +94,7 @@ export default function Reports() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header Controls */}
+
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">ANALYTICS & REPORTS</h1>
@@ -119,20 +116,19 @@ export default function Reports() {
           <div className="flex justify-center py-20"><Spinner size="lg" /></div>
         ) : (
           <>
-            {/* Revenue Analytics Cards */}
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
               <StatCard label="This Month Revenue" value={`₹${thisMonthRev.toLocaleString()}`} color="#00c853" />
               <StatCard label="Last Month Revenue" value={`₹${lastMonthRev.toLocaleString()}`} color="#ffd700" />
               <StatCard label="Total Revenue (All Time)" value={`₹${totalRev.toLocaleString()}`} sub={`from ${paid.length} paid bookings`} color="#ff6f00" />
             </div>
 
-            {/* Occupancy Chart Section */}
             <div className="bg-brand-card border border-white/5 rounded-2xl p-6 mb-8 shadow-2xl">
               <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase mb-6 flex items-center gap-2.5">
                 <TrendingUp size={15} className="text-primary" />
                 <span>SLOT OCCUPANCY RATIO</span>
               </h2>
-              
+
               <div className="grid grid-cols-3 gap-6 text-left border-b border-white/5 pb-6 mb-6">
                 <div>
                   <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mb-1">Total Scheduled</p>
@@ -148,7 +144,6 @@ export default function Reports() {
                 </div>
               </div>
 
-              {/* Progress Indicator */}
               <div className="bg-brand-greyDark rounded-full h-3.5 overflow-hidden border border-white/5">
                 <div
                   className="h-3.5 rounded-full bg-gradient-to-r from-primary to-primary-light transition-all duration-500 shadow-[0_0_15px_rgba(0,200,83,0.4)]"
@@ -157,12 +152,11 @@ export default function Reports() {
               </div>
             </div>
 
-            {/* Revenue table by date */}
             <div className="bg-brand-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
               <div className="px-6 py-5 border-b border-white/5 bg-black/45">
                 <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase">REVENUE BY DATE</h2>
               </div>
-              
+
               {byDate.length === 0 ? (
                 <p className="text-center text-brand-greyMedium py-12 text-xs font-sans">No booking metrics recorded yet.</p>
               ) : (

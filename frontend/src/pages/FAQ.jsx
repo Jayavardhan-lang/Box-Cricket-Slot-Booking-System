@@ -79,8 +79,7 @@ export default function FAQ() {
     <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        
-        {/* Header */}
+
         <div className="mb-12 text-center md:text-left flex flex-col items-center md:items-start">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
             ⚡ SUPPORT
@@ -95,10 +94,9 @@ export default function FAQ() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Chat Container */}
+
           <div className="bg-brand-card border border-primary/20 rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden h-[580px]">
-            
-            {/* Chat Header */}
+
             <div className="bg-gradient-to-r from-primary to-primary-dark px-6 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-black/30 border border-white/20 rounded-full flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,0,0,0.3)]">
@@ -115,7 +113,6 @@ export default function FAQ() {
               <ShieldCheck className="text-secondary opacity-80" size={20} />
             </div>
 
-            {/* Messages Area */}
             <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-black/40">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}>
@@ -137,7 +134,6 @@ export default function FAQ() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Quick Replies Row */}
             <div className="px-4 py-3 flex gap-2 overflow-x-auto border-t border-white/5 bg-brand-card">
               {quickReplies.map(q => (
                 <button
@@ -150,7 +146,6 @@ export default function FAQ() {
               ))}
             </div>
 
-            {/* Input Row */}
             <div className="p-4 border-t border-white/5 flex gap-3 bg-brand-card">
               <input
                 id="chat-input"
@@ -171,19 +166,17 @@ export default function FAQ() {
             </div>
           </div>
 
-          {/* FAQ Accordion Side */}
           <div className="space-y-4">
             <h2 className="font-heading font-black text-secondary text-sm tracking-[2px] uppercase mb-4">
               COMMON QUESTIONS
             </h2>
-            
+
             <div className="space-y-3">
               {faqs.map((faq, i) => (
                 <FAQItem key={i} q={faq.q} a={faq.a} />
               ))}
             </div>
 
-            {/* Helpline box */}
             <div className="bg-gradient-to-b from-[#0d2818] to-brand-card border border-primary/20 rounded-3xl p-6 shadow-[0_8px_20px_rgba(0,0,0,0.3)] mt-8">
               <h3 className="font-heading font-black text-white tracking-wide text-sm uppercase mb-3">
                 📞 NEED DIRECT ASSISTANCE?

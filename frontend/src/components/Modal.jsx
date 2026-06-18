@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import { useEffect } from 'react'
 
 function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
-  // Close on Escape key
+
   useEffect(() => {
     if (!isOpen) return
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -14,16 +14,16 @@ function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+
       <div
         className="absolute inset-0 bg-black/85 backdrop-blur-md"
         onClick={onClose}
       />
-      {/* Panel */}
+
       <div
         className={`relative bg-[#111111] border border-primary/30 rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] w-full ${maxWidth} max-h-[90vh] flex flex-col`}
       >
-        {/* Header */}
+
         <div
           className="flex items-center justify-between px-6 py-4 border-b border-primary/25 bg-black rounded-t-2xl"
         >
@@ -35,7 +35,7 @@ function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
             <X size={20} />
           </button>
         </div>
-        {/* Body — scrollable */}
+
         <div className="overflow-y-auto flex-1 p-6 text-white">{children}</div>
       </div>
     </div>

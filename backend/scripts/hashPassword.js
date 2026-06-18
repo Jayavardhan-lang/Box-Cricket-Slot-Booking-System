@@ -1,11 +1,4 @@
-/**
- * One-time password hashing utility.
- *
- * Run:  node scripts/hashPassword.js yourPasswordHere
- *
- * Copy the output hash into backend/.env as:
- *   ADMIN_PASSWORD_HASH=<paste here>
- */
+
 const bcrypt = require('bcryptjs');
 
 const password = process.argv[2];

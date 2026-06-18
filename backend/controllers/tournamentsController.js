@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// ─── GET ALL TOURNAMENTS ───────────────────────────────────────────────────────
 const getAllTournaments = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -17,7 +16,6 @@ const getAllTournaments = async (req, res) => {
   }
 };
 
-// ─── CREATE TOURNAMENT ─────────────────────────────────────────────────────────
 const createTournament = async (req, res) => {
   try {
     const { name, date, entry_fee = 0, max_teams = 8, status = 'upcoming' } = req.body;
@@ -45,7 +43,6 @@ const createTournament = async (req, res) => {
   }
 };
 
-// ─── UPDATE TOURNAMENT ─────────────────────────────────────────────────────────
 const updateTournament = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +75,6 @@ const updateTournament = async (req, res) => {
   }
 };
 
-// ─── REGISTER TEAM ─────────────────────────────────────────────────────────────
 const registerTeam = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -92,7 +88,6 @@ const registerTeam = async (req, res) => {
       });
     }
 
-    // Check tournament exists and has spots
     const [tournament] = await conn.query(
       `SELECT t.*,
         (SELECT COUNT(*) FROM tournament_registrations WHERE tournament_id = t.id) AS registrations_count
@@ -114,7 +109,6 @@ const registerTeam = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // Register team
     const [regResult] = await conn.query(
       `INSERT INTO tournament_registrations 
        (tournament_id, team_name, captain_name, phone, payment_status)
@@ -122,7 +116,6 @@ const registerTeam = async (req, res) => {
       [tournament_id, team_name, captain_name, phone, payment_status]
     );
 
-    // Add to points table
     await conn.query(
       `INSERT INTO points_table (tournament_id, team_name, played, won, lost, points)
        VALUES (?, ?, 0, 0, 0, 0)`,
@@ -145,7 +138,6 @@ const registerTeam = async (req, res) => {
   }
 };
 
-// ─── GET REGISTRATIONS ─────────────────────────────────────────────────────────
 const getRegistrations = async (req, res) => {
   try {
     const { id: tournament_id } = req.params;
@@ -160,7 +152,6 @@ const getRegistrations = async (req, res) => {
   }
 };
 
-// ─── GET FIXTURES ──────────────────────────────────────────────────────────────
 const getFixtures = async (req, res) => {
   try {
     const { id: tournament_id } = req.params;
@@ -175,7 +166,6 @@ const getFixtures = async (req, res) => {
   }
 };
 
-// ─── CREATE FIXTURE ────────────────────────────────────────────────────────────
 const createFixture = async (req, res) => {
   try {
     const { tournament_id, team1, team2, match_date, match_time } = req.body;
@@ -203,7 +193,6 @@ const createFixture = async (req, res) => {
   }
 };
 
-// ─── UPDATE FIXTURE (with points table update) ─────────────────────────────────
 const updateFixture = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -219,7 +208,6 @@ const updateFixture = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // Update fixture
     const fields = [];
     const vals = [];
     if (result     !== undefined) { fields.push('result = ?');     vals.push(result); }
@@ -227,7 +215,6 @@ const updateFixture = async (req, res) => {
     if (match_time !== undefined) { fields.push('match_time = ?'); vals.push(match_time); }
     if (status     !== undefined) { fields.push('status = ?');     vals.push(status); }
 
-    // When result is provided, auto-complete the fixture
     if (result) {
       fields.push("status = 'completed'");
     }
@@ -237,13 +224,11 @@ const updateFixture = async (req, res) => {
       await conn.query(`UPDATE fixtures SET ${fields.join(', ')} WHERE id = ?`, vals);
     }
 
-    // Update points table if result is provided
     if (result) {
       const winner = result.trim();
-      // Determine loser
+
       const loser = winner === fixture.team1 ? fixture.team2 : fixture.team1;
 
-      // Update winner
       await conn.query(
         `UPDATE points_table 
          SET played = played + 1, won = won + 1, points = points + 2
@@ -251,7 +236,6 @@ const updateFixture = async (req, res) => {
         [fixture.tournament_id, winner]
       );
 
-      // Update loser
       await conn.query(
         `UPDATE points_table 
          SET played = played + 1, lost = lost + 1
@@ -272,7 +256,6 @@ const updateFixture = async (req, res) => {
   }
 };
 
-// ─── GET POINTS TABLE ──────────────────────────────────────────────────────────
 const getPointsTable = async (req, res) => {
   try {
     const { id: tournament_id } = req.params;

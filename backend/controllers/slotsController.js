@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// ─── GET ALL SLOTS ─────────────────────────────────────────────────────────────
 const getAllSlots = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -13,7 +12,6 @@ const getAllSlots = async (req, res) => {
   }
 };
 
-// ─── GET SLOTS BY DATE ─────────────────────────────────────────────────────────
 const getSlotsByDate = async (req, res) => {
   try {
     const { date } = req.query;
@@ -28,7 +26,6 @@ const getSlotsByDate = async (req, res) => {
   }
 };
 
-// ─── CREATE SLOT ───────────────────────────────────────────────────────────────
 const createSlot = async (req, res) => {
   try {
     const { date, start_time, end_time, price, status = 'available' } = req.body;
@@ -56,13 +53,11 @@ const createSlot = async (req, res) => {
   }
 };
 
-// ─── UPDATE SLOT ───────────────────────────────────────────────────────────────
 const updateSlot = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, price, start_time, end_time } = req.body;
 
-    // Check slot exists
     const [existing] = await pool.query('SELECT * FROM slots WHERE id = ?', [id]);
     if (existing.length === 0) {
       return res.status(404).json({ success: false, message: 'Slot not found' });
@@ -90,7 +85,6 @@ const updateSlot = async (req, res) => {
   }
 };
 
-// ─── DELETE SLOT ───────────────────────────────────────────────────────────────
 const deleteSlot = async (req, res) => {
   try {
     const { id } = req.params;

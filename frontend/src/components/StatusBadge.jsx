@@ -1,9 +1,4 @@
-/**
- * StatusBadge component
- * Displays a color-coded status badge
- *
- * @param {{ status: string }} props
- */
+
 function StatusBadge({ status }) {
   const statusMap = {
     confirmed:  { bg: 'rgba(0, 200, 83, 0.1)',  color: '#00c853', label: 'Confirmed' },

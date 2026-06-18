@@ -100,8 +100,7 @@ export default function SlotManagement() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header Controls */}
+
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">SLOT CONTROL</h1>
@@ -223,7 +222,6 @@ export default function SlotManagement() {
           </div>
         )}
 
-        {/* Add Slot Modal */}
         <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create New Slot">
           {formErr && <Alert type="error" message={formErr} onClose={() => setFormErr('')} />}
           <form onSubmit={handleCreate} className="space-y-4">
@@ -239,7 +237,7 @@ export default function SlotManagement() {
                 className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">

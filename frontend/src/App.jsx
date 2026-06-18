@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 
-// Public Pages
 import Home from './pages/Home'
 import BookSlot from './pages/BookSlot'
 import MyBookings from './pages/MyBookings'
@@ -9,7 +8,6 @@ import Tournaments from './pages/Tournaments'
 import Membership from './pages/Membership'
 import FAQ from './pages/FAQ'
 
-// Admin Pages
 import AdminLogin from './pages/admin/Login'
 import AdminDashboard from './pages/admin/Dashboard'
 import SlotManagement from './pages/admin/SlotManagement'
@@ -23,7 +21,7 @@ import AdminFeedback from './pages/admin/Feedback'
 function App() {
   return (
     <Routes>
-      {/* Public Routes */}
+
       <Route path="/" element={<Home />} />
       <Route path="/book-slot" element={<BookSlot />} />
       <Route path="/my-bookings" element={<MyBookings />} />
@@ -31,10 +29,8 @@ function App() {
       <Route path="/membership" element={<Membership />} />
       <Route path="/faq" element={<FAQ />} />
 
-      {/* Admin Auth */}
       <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* Protected Admin Routes */}
       <Route
         path="/admin/dashboard"
         element={

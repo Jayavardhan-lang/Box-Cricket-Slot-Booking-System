@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// ─── CREATE FEEDBACK ───────────────────────────────────────────────────────────
 const createFeedback = async (req, res) => {
   try {
     const { customer_id, booking_id, rating, comment } = req.body;
@@ -36,7 +35,6 @@ const createFeedback = async (req, res) => {
   }
 };
 
-// ─── GET ALL FEEDBACK ──────────────────────────────────────────────────────────
 const getAllFeedback = async (req, res) => {
   try {
     const [rows] = await pool.query(

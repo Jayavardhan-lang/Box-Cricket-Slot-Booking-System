@@ -1,9 +1,4 @@
-/**
- * JWT Authentication Middleware
- * Verifies Bearer token on protected admin API routes.
- *
- * Usage: router.get('/protected', verifyToken, handler)
- */
+
 const jwt = require('jsonwebtoken');
 
 function verifyToken(req, res, next) {
@@ -20,7 +15,7 @@ function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded; // { username, iat, exp }
+    req.admin = decoded; 
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {

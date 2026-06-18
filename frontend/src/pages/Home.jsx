@@ -42,7 +42,7 @@ export default function Home() {
     setTournamentsLoading(true)
     try {
       const { data } = await axios.get(`${API_URL}/tournaments`)
-      // Take the first 3 upcoming/ongoing tournaments
+
       const list = data.data || []
       const filtered = list.filter(t => t.status !== 'completed').slice(0, 3)
       setTournaments(filtered)
@@ -67,18 +67,16 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
 
-      {/* ── 1. Hero Section ────────────────────────────────────────────────── */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-turf-pattern px-4 py-16">
-        {/* Animated Background Gradients & Floating SVGs */}
+
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-[#0d2818]/60 to-brand-dark z-0" />
-        
-        {/* Decorative Floating Balls */}
+
         <div className="absolute top-[20%] left-[10%] text-6xl opacity-15 animate-float-slow select-none hidden md:block">🏏</div>
         <div className="absolute bottom-[30%] right-[10%] text-7xl opacity-10 animate-float-medium select-none hidden md:block">🏆</div>
         <div className="absolute top-[15%] right-[20%] text-5xl opacity-5 animate-float-slow select-none hidden md:block">⚾</div>
 
         <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
-          {/* Top Badge */}
+
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-5 py-2 mb-8 animate-pulse">
             <Zap size={14} className="text-secondary" />
             <span className="font-accent text-xs font-bold text-secondary tracking-[2px] uppercase">
@@ -274,7 +272,7 @@ export default function Home() {
       <section className="py-24 px-4 bg-[#0d2818] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-0" />
         <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Text */}
           <div className="lg:col-span-5 flex flex-col items-start text-left">
             <span className="font-accent text-secondary tracking-[4px] text-xs font-bold uppercase mb-3">
@@ -294,7 +292,6 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Right Cards Stack */}
           <div className="lg:col-span-7 flex flex-col gap-4 w-full">
             {tournamentsLoading ? (
               <div className="py-12 flex justify-center"><Spinner /></div>
@@ -325,7 +322,7 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              // Default Fallback cards if no tournaments in database
+
               <>
                 <div className="bg-black/80 border-l-4 border-primary rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
@@ -369,7 +366,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5. Testimonials Section ────────────────────────────────────────── */}
       <section className="py-24 px-4 bg-brand-dark text-center">
         <div className="max-w-6xl mx-auto">
           <span className="font-accent text-secondary tracking-[4px] text-xs font-bold uppercase block mb-3">
@@ -406,7 +402,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 6. CTA Banner ─────────────────────────────────────────────────── */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary to-primary-dark text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10 z-0" />
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">

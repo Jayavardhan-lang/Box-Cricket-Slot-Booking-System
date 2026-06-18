@@ -14,19 +14,11 @@ export function CustomerAuthProvider({ children }) {
     }
   })
 
-  /**
-   * Called after successful Google OAuth flow.
-   * Stores the Google user profile (name, email, picture) in state + localStorage.
-   * @param {{ name: string, email: string, picture: string }} profile
-   */
   const loginWithGoogle = useCallback((profile) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
     setCustomer(profile)
   }, [])
 
-  /**
-   * Clears the customer session from state + localStorage.
-   */
   const logoutCustomer = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
     setCustomer(null)

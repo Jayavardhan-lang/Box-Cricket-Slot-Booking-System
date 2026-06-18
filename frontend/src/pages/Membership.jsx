@@ -107,8 +107,7 @@ export default function Membership() {
     <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        
-        {/* Header */}
+
         <div className="text-center mb-16 flex flex-col items-center">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
             ⚡ EXCLUSIVE BENEFITS
@@ -124,7 +123,6 @@ export default function Membership() {
 
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} autoClose={6000} />}
 
-        {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch pt-6">
           {plans.map((plan, i) => {
             const isPremium = plan.key === 'premium'
@@ -134,7 +132,7 @@ export default function Membership() {
                 className={`relative rounded-3xl border-2 ${plan.borderClass} ${plan.bgClass} overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-2
                   ${isPremium ? 'md:-mt-4 md:mb-4 scale-100 md:scale-[1.03] z-10' : ''}`}
               >
-                {/* Popular / Standard Badge */}
+
                 {plan.badge && (
                   <div className="absolute top-4 right-4 bg-gradient-to-r from-secondary to-secondary-dark text-black font-accent font-black text-[9px] tracking-widest px-3 py-1.5 rounded-full uppercase">
                     {plan.badge}
@@ -142,7 +140,7 @@ export default function Membership() {
                 )}
 
                 <div className="p-8 flex-1 flex flex-col">
-                  {/* Icon Representation */}
+
                   <div className="mb-6">
                     {plan.key === 'basic' && <Award className="text-primary" size={36} />}
                     {plan.key === 'premium' && <Sparkles className="text-secondary" size={36} />}
@@ -150,7 +148,7 @@ export default function Membership() {
                   </div>
 
                   <h2 className="font-heading font-black text-xl text-white tracking-wide uppercase mb-3">{plan.name}</h2>
-                  
+
                   <div className="flex items-baseline gap-1 mb-8">
                     <span className={`font-display text-5xl sm:text-6xl ${plan.priceColorClass}`}>₹{plan.price.toLocaleString()}</span>
                     <span className="font-sans text-xs text-brand-greyMedium lowercase">/month</span>
@@ -187,10 +185,9 @@ export default function Membership() {
         </p>
       </main>
 
-      {/* Activation Form Modal */}
       <Modal isOpen={!!modalPlan} onClose={() => setModalPlan(null)} title="MEMBERSHIP SUBSCRIPTION">
         {submitError && <Alert type="error" message={submitError} onClose={() => setSubmitError('')} />}
-        
+
         {modalPlan && (
           <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -210,7 +207,7 @@ export default function Membership() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
+
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               FULL NAME *
@@ -224,7 +221,6 @@ export default function Membership() {
             {errors.name && <p className="text-error text-xs mt-1 font-sans">{errors.name}</p>}
           </div>
 
-          {/* Phone Number */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               PHONE NUMBER *
@@ -239,7 +235,6 @@ export default function Membership() {
             {errors.phone && <p className="text-error text-xs mt-1 font-sans">{errors.phone}</p>}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               EMAIL ADDRESS
@@ -252,7 +247,6 @@ export default function Membership() {
             />
           </div>
 
-          {/* Action Row */}
           <div className="flex gap-4 pt-4">
             <button
               type="button"

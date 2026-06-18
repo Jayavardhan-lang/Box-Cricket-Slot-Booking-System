@@ -79,8 +79,7 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto max-h-screen">
-        
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-white/5 pb-6 mb-8">
           <div>
             <h1 className="font-display text-4xl text-white tracking-wide uppercase">DASHBOARD</h1>
@@ -103,14 +102,13 @@ export default function AdminDashboard() {
           <div className="flex justify-center py-20"><Spinner size="lg" /></div>
         ) : (
           <>
-            {/* Summary Grid */}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
               {summaryCards.map((c, i) => (
                 <SummaryCard key={i} title={c.title} value={c.value} icon={c.icon} color={c.color} />
               ))}
             </div>
 
-            {/* Recent Bookings Panel */}
             <div className="bg-brand-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
               <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-black/45">
                 <h2 className="font-heading font-black text-xs text-secondary tracking-widest uppercase">RECENT BOOKINGS</h2>
@@ -121,7 +119,7 @@ export default function AdminDashboard() {
                   VIEW ALL →
                 </button>
               </div>
-              
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-brand-greyDark/40 text-brand-greyMedium text-[10px] font-accent font-bold tracking-widest uppercase border-b border-white/5">

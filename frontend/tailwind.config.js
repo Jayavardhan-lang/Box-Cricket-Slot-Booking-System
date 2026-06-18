@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./index.html",
@@ -8,14 +8,14 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#00c853', // Bright cricket green
-          dark: '#1b5e20',    // Deep forest green
-          light: '#00e676',   // Bright success/active green
+          DEFAULT: '#00c853', 
+          dark: '#1b5e20',    
+          light: '#00e676',   
         },
         secondary: {
-          DEFAULT: '#ffd700', // Premium gold
-          dark: '#ff6f00',    // Deep gold/orange
-          light: '#ffecb3',   // Light gold tint
+          DEFAULT: '#ffd700', 
+          dark: '#ff6f00',    
+          light: '#ffecb3',   
         },
         brand: {
           dark: '#0a0a0a',

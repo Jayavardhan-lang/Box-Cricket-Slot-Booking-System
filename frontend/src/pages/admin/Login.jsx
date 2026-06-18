@@ -12,7 +12,6 @@ export default function AdminLogin() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // If already authenticated, redirect straight to dashboard
   useEffect(() => {
     if (authStatus === 'ready' && isLoggedIn) {
       navigate('/admin/dashboard', { replace: true })
@@ -39,10 +38,8 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col md:flex-row relative overflow-hidden">
 
-      {/* ── Left Side Panel ── */}
       <div className="flex-1 md:flex-[1.5] bg-gradient-to-br from-brand-dark via-[#0d2818] to-brand-dark relative flex flex-col items-center justify-center p-8 sm:p-12 border-b md:border-b-0 md:border-r border-primary/25 z-10">
 
-        {/* Floating background decorations */}
         <div className="absolute top-[10%] left-[10%] text-6xl opacity-5 animate-float-slow select-none">🏏</div>
         <div className="absolute bottom-[10%] right-[10%] text-6xl opacity-5 animate-float-medium select-none">🏆</div>
 
@@ -58,7 +55,6 @@ export default function AdminLogin() {
             Eagle Box Cricket staff administration node. Log in to manage schedules, track revenue metrics, and configure leagues.
           </p>
 
-          {/* Feature pills */}
           <div className="flex flex-wrap justify-center md:justify-start gap-2 max-w-sm">
             <span className="font-accent text-[10px] font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-full uppercase tracking-wider">
               📊 Stats Dashboard
@@ -73,11 +69,9 @@ export default function AdminLogin() {
         </div>
       </div>
 
-      {/* ── Right Side Panel ── */}
       <div className="flex-1 bg-brand-card flex items-center justify-center p-8 sm:p-12 z-10">
         <div className="w-full max-w-md">
 
-          {/* Back to Home */}
           <Link
             to="/"
             className="inline-flex items-center gap-2 mb-8 text-white/50 hover:text-primary font-heading font-bold text-[12px] tracking-wider uppercase transition-all duration-300 group"
@@ -86,7 +80,6 @@ export default function AdminLogin() {
             Return to Home
           </Link>
 
-          {/* Header */}
           <div className="text-center md:text-left mb-8">
             <h2 className="font-display text-4xl text-white tracking-wide uppercase leading-none mb-2">ADMIN LOGIN</h2>
             <p className="font-sans text-xs text-brand-greyMedium uppercase tracking-wider">
@@ -96,9 +89,8 @@ export default function AdminLogin() {
 
           {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
-            {/* Username */}
+
             <div>
               <label className="block font-accent text-[11px] font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
                 USERNAME
@@ -117,7 +109,6 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label className="block font-accent text-[11px] font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
                 PASSWORD
@@ -136,7 +127,6 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            {/* Submit */}
             <button
               id="admin-login-btn"
               type="submit"
@@ -154,7 +144,6 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          {/* ── Authorized Access Notice (replaces demo credentials) ── */}
           <div className="mt-8 p-5 bg-primary/5 border border-primary/20 rounded-2xl flex flex-col items-center gap-3 text-center">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border border-primary/30">
               <ShieldCheck size={20} className="text-primary" />

@@ -44,7 +44,6 @@ function Navbar() {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[70px]">
 
-          {/* Left Section: Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <span className="text-3xl animate-bounce-slow">🏏</span>
             <div className="flex flex-col">
@@ -58,7 +57,6 @@ function Navbar() {
             </div>
           </Link>
 
-          {/* Center Section: Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={navLinkClass} end={link.to === '/'}>
@@ -67,7 +65,6 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Right Section: BOOK NOW + Google Login + Admin */}
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => navigate('/book-slot')}
@@ -76,7 +73,6 @@ function Navbar() {
               BOOK NOW
             </button>
 
-            {/* Google Login / Customer Avatar — desktop */}
             <DesktopCustomerSection />
 
             <Link
@@ -88,7 +84,6 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-primary hover:text-primary-light transition-all duration-200 p-1 cursor-pointer"
@@ -99,7 +94,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
       <div
         style={{ backgroundColor: '#0a0a0a' }}
         className={`fixed inset-0 top-[70px] w-full h-[calc(100vh-70px)] z-[999] transition-all duration-300 md:hidden flex flex-col items-center justify-center gap-0 ${
@@ -133,7 +127,6 @@ function Navbar() {
             BOOK A SLOT
           </button>
 
-          {/* Google Login / User row — mobile */}
           <div className="w-full max-w-xs" onClick={() => setMenuOpen(false)}>
             <MobileCustomerSection />
           </div>
@@ -152,7 +145,6 @@ function Navbar() {
   )
 }
 
-// ─── Desktop: avatar chip with dropdown, or Google login button ──────────────
 function DesktopCustomerSection() {
   const { customer, logoutCustomer } = useCustomerAuth()
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -192,9 +184,9 @@ function DesktopCustomerSection() {
 
       {dropdownOpen && (
         <>
-          {/* Click-away backdrop */}
+
           <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-          {/* Dropdown panel */}
+
           <div className="absolute right-0 top-full mt-2 w-60 bg-[#111] border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-20 overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10 flex items-center gap-3">
               {customer.picture ? (
@@ -227,7 +219,6 @@ function DesktopCustomerSection() {
   )
 }
 
-// ─── Mobile: user info row with sign out, or Google login button ─────────────
 function MobileCustomerSection() {
   const { customer, logoutCustomer } = useCustomerAuth()
 

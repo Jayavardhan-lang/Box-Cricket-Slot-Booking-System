@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// ─── CREATE OR FIND CUSTOMER ───────────────────────────────────────────────────
 const createOrFindCustomer = async (req, res) => {
   try {
     const { name, phone, email, customer_type = 'player' } = req.body;
@@ -9,7 +8,6 @@ const createOrFindCustomer = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone is required' });
     }
 
-    // Check if customer exists by phone
     const [existing] = await pool.query(
       'SELECT * FROM customers WHERE phone = ?',
       [phone]
@@ -23,7 +21,6 @@ const createOrFindCustomer = async (req, res) => {
       });
     }
 
-    // Create new customer
     if (!name) {
       return res.status(400).json({ success: false, message: 'Name is required for new customer' });
     }
@@ -49,7 +46,6 @@ const createOrFindCustomer = async (req, res) => {
   }
 };
 
-// ─── GET ALL CUSTOMERS ─────────────────────────────────────────────────────────
 const getAllCustomers = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -62,7 +58,6 @@ const getAllCustomers = async (req, res) => {
   }
 };
 
-// ─── GET CUSTOMER BY ID ────────────────────────────────────────────────────────
 const getCustomerById = async (req, res) => {
   try {
     const { id } = req.params;

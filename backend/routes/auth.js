@@ -5,11 +5,10 @@ const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─── Rate Limiter: max 5 failed login attempts per 15 minutes per IP ──────────
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15-minute window
+  windowMs: 15 * 60 * 1000, 
   max: 5,
-  skipSuccessfulRequests: true, // only count failed attempts
+  skipSuccessfulRequests: true, 
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -23,15 +22,10 @@ const loginLimiter = rateLimit({
   },
 });
 
-// ─── Routes ──────────────────────────────────────────────────────────────────
-
-// POST /api/auth/login  — rate-limited, no auth required
 router.post('/login', loginLimiter, login);
 
-// POST /api/auth/logout — auth required (so stale tokens can't spam logout)
 router.post('/logout', verifyToken, logout);
 
-// GET  /api/auth/verify — auth required; used by frontend to validate stored token on load
 router.get('/verify', verifyToken, verifySession);
 
 module.exports = router;

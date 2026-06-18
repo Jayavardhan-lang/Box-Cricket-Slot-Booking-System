@@ -56,7 +56,7 @@ export default function Tournaments() {
       const { data } = await axios.post(`${API_URL}/tournaments/${regModal.id}/register`, form)
       setSuccess(`🎉 Registration confirmed! Your Registration ID is #${data.data.registrationId}`)
       setRegModal(null)
-      // Update spots
+
       setTournaments(prev => prev.map(t =>
         t.id === regModal.id
           ? { ...t, registrations_count: t.registrations_count + 1, spots_remaining: t.spots_remaining - 1 }
@@ -77,7 +77,6 @@ export default function Tournaments() {
     },
   })
 
-  // Status-specific configuration
   const statusConfig = {
     upcoming: { color: '#ff9100', label: 'UPCOMING', border: 'border-l-warning' },
     ongoing: { color: '#00c853', label: 'ONGOING', border: 'border-l-primary' },
@@ -88,7 +87,7 @@ export default function Tournaments() {
     <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        {/* Header */}
+
         <div className="mb-12 text-center md:text-left flex flex-col items-center md:items-start">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
             ⚡ CHAMPIONSHIPS
@@ -125,7 +124,7 @@ export default function Tournaments() {
                   key={t.id}
                   className={`bg-brand-card border-l-4 ${cfg.border} rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-[0_8px_25px_rgba(0,0,0,0.4)] hover:scale-[1.01] transition-transform duration-300`}
                 >
-                  {/* Tournament Title Info */}
+
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3 mb-3">
                       <h3 className="font-heading font-black text-xl text-white uppercase leading-tight">{t.name}</h3>
@@ -149,7 +148,6 @@ export default function Tournaments() {
                     </div>
                   </div>
 
-                  {/* Tournament Stats Cards */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-left min-w-[280px] border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
                     <div>
                       <p className="font-accent text-[9px] text-brand-greyMedium tracking-wider uppercase mb-1">ENTRY FEE</p>
@@ -177,7 +175,6 @@ export default function Tournaments() {
                     </div>
                   </div>
 
-                  {/* Action Registration Button */}
                   <div className="w-full md:w-auto flex items-center justify-end md:pl-4">
                     {isCompleted ? (
                       <button disabled className="w-full md:w-auto px-6 py-3 bg-white/5 text-white/30 font-heading font-black text-[12px] tracking-wider rounded-xl cursor-not-allowed uppercase border border-white/5">
@@ -204,10 +201,9 @@ export default function Tournaments() {
         )}
       </main>
 
-      {/* Registration Modal */}
       <Modal isOpen={!!regModal} onClose={() => setRegModal(null)} title="REGISTER TEAM">
         {submitError && <Alert type="error" message={submitError} onClose={() => setSubmitError('')} />}
-        
+
         {regModal && (
           <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -227,7 +223,7 @@ export default function Tournaments() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Team Name */}
+
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               TEAM NAME *
@@ -241,7 +237,6 @@ export default function Tournaments() {
             {errors.team_name && <p className="text-error text-xs mt-1 font-sans">{errors.team_name}</p>}
           </div>
 
-          {/* Captain Name */}
           <div>
             <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
               CAPTAIN'S FULL NAME *

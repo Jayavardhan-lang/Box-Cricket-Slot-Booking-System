@@ -66,7 +66,7 @@ export default function MyBookings() {
     <div className="min-h-screen flex flex-col bg-brand-dark text-white pt-[70px]">
       <Navbar />
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-16">
-        {/* Header */}
+
         <div className="mb-12 text-center sm:text-left flex flex-col items-center sm:items-start">
           <span className="font-accent text-secondary tracking-[3px] text-xs font-bold uppercase block mb-2">
             ⚡ MY ACCOUNT
@@ -83,7 +83,6 @@ export default function MyBookings() {
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} autoClose={4000} />}
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
-        {/* Phone Search Section */}
         <form
           onSubmit={handleSearch}
           className="bg-brand-card border border-primary/25 rounded-3xl p-6 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] glow-green transition-all duration-300 mb-10"
@@ -138,7 +137,7 @@ export default function MyBookings() {
                   key={b.id}
                   className="bg-brand-card border-l-4 border-primary rounded-2xl p-6 shadow-[0_8px_25px_rgba(0,0,0,0.4)] hover:scale-[1.01] transition-transform duration-300 flex flex-col justify-between"
                 >
-                  {/* Top Bar */}
+
                   <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/5 pb-4 mb-4">
                     <div>
                       <span className="font-accent text-[9px] text-brand-greyMedium tracking-widest uppercase font-bold">BOOKING ID</span>
@@ -151,7 +150,6 @@ export default function MyBookings() {
                     </div>
                   </div>
 
-                  {/* Booking Metadata */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-sans mb-6">
                     <div>
                       <p className="text-brand-greyMedium font-medium uppercase text-[10px] tracking-wider mb-1">TEAM NAME</p>
@@ -177,7 +175,6 @@ export default function MyBookings() {
                     </div>
                   </div>
 
-                  {/* Actions & Badges */}
                   <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
                     <div className="flex gap-2 flex-wrap">
                       <StatusBadge status={b.booking_status} />
