@@ -11,11 +11,16 @@ build/
 # Local env files (highly sensitive)
 backend/.env
 frontend/.env
+frontend/.env.production
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Temp / debug scripts
+backend/scripts/fixHash.js
+backend/scripts/testLogin.js
 
 # IDE/System files
 .vscode/

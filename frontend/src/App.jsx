@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import { useCustomerAuth } from './context/CustomerAuthContext'
 
 import Home from './pages/Home'
 import BookSlot from './pages/BookSlot'
@@ -19,12 +20,32 @@ import Reports from './pages/admin/Reports'
 import AdminFeedback from './pages/admin/Feedback'
 
 function App() {
+  const { customer } = useCustomerAuth()
+  const isCustomerLoggedIn = !!customer
+
   return (
     <Routes>
 
       <Route path="/" element={<Home />} />
-      <Route path="/book-slot" element={<BookSlot />} />
-      <Route path="/my-bookings" element={<MyBookings />} />
+
+      {/* Protected customer routes — redirect to home with login modal if not logged in */}
+      <Route
+        path="/book-slot"
+        element={
+          isCustomerLoggedIn
+            ? <BookSlot />
+            : <Navigate to="/" state={{ showLogin: true }} replace />
+        }
+      />
+      <Route
+        path="/my-bookings"
+        element={
+          isCustomerLoggedIn
+            ? <MyBookings />
+            : <Navigate to="/" state={{ showLogin: true }} replace />
+        }
+      />
+
       <Route path="/tournaments" element={<Tournaments />} />
       <Route path="/membership" element={<Membership />} />
       <Route path="/faq" element={<FAQ />} />

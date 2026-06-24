@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
-import { CalendarDays, Zap, Star, Trophy, Users, ShieldAlert, ArrowDown } from 'lucide-react'
+import { Zap, Star, ArrowDown } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
+import LoginModal from '../components/LoginModal'
+import { useCustomerAuth } from '../context/CustomerAuthContext'
 import { API_URL } from '../config'
 
 const today = new Date().toISOString().split('T')[0]
@@ -20,11 +22,14 @@ function formatTime(t) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { customer } = useCustomerAuth()
   const [selectedDate, setSelectedDate] = useState(today)
   const [slots, setSlots] = useState([])
   const [tournaments, setTournaments] = useState([])
   const [loading, setLoading] = useState(false)
   const [tournamentsLoading, setTournamentsLoading] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   const fetchSlots = async (date) => {
     setLoading(true)
@@ -60,6 +65,23 @@ export default function Home() {
   useEffect(() => {
     fetchTournaments()
   }, [])
+
+  // Show login modal if redirected here with showLogin state
+  useEffect(() => {
+    if (location.state?.showLogin) {
+      setShowLoginModal(true)
+      // Clear the state so refreshing doesn't re-open modal
+      window.history.replaceState({}, '')
+    }
+  }, [location.state])
+
+  const handleBookSlotClick = () => {
+    if (customer) {
+      navigate('/book-slot')
+    } else {
+      setShowLoginModal(true)
+    }
+  }
 
   const available = slots.filter(s => s.status === 'available')
 
@@ -126,19 +148,41 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Buttons CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
+          {/* Single CTA Button */}
+          <div className="flex justify-center" style={{ marginTop: '40px' }}>
             <button
-              onClick={() => navigate('/book-slot')}
-              className="flex-1 px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-heading font-extrabold text-[14px] rounded-full hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,200,83,0.35)] hover:shadow-[0_0_30px_rgba(0,200,83,0.55)] cursor-pointer tracking-wider"
+              id="hero-book-slot-btn"
+              onClick={handleBookSlotClick}
+              style={{
+                background: 'linear-gradient(135deg, #00c853, #1b5e20)',
+                color: 'white',
+                padding: '18px 48px',
+                borderRadius: '50px',
+                fontFamily: 'Montserrat, sans-serif',
+                fontSize: '16px',
+                fontWeight: 700,
+                letterSpacing: '1.5px',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 8px 32px rgba(0,200,83,0.4)',
+                transition: 'all 0.3s ease',
+                minWidth: '220px',
+                height: '56px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'scale(1.05)'
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,200,83,0.6)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,200,83,0.4)'
+              }}
             >
-              🏏 BOOK A SLOT NOW
-            </button>
-            <button
-              onClick={() => navigate('/tournaments')}
-              className="flex-1 px-8 py-4 bg-transparent border-2 border-secondary/50 text-secondary hover:bg-secondary/10 font-heading font-extrabold text-[14px] rounded-full hover:scale-105 transition-all duration-300 cursor-pointer tracking-wider"
-            >
-              VIEW TOURNAMENTS →
+              🏏 {customer ? 'BOOK YOUR SLOT' : 'LOGIN TO BOOK'}
             </button>
           </div>
 
@@ -196,7 +240,7 @@ export default function Home() {
               {slots.map(slot => (
                 <div
                   key={slot.id}
-                  onClick={() => slot.status === 'available' && navigate('/book-slot')}
+                  onClick={() => slot.status === 'available' && handleBookSlotClick()}
                   className={`rounded-xl p-3.5 text-center border-2 transition-all duration-300 relative overflow-hidden group
                     ${slot.status === 'available'
                       ? 'border-primary/40 bg-primary/5 cursor-pointer hover:border-primary hover:bg-primary/10 hover:scale-[1.03]'
@@ -221,10 +265,10 @@ export default function Home() {
 
           {available.length > 0 && (
             <button
-              onClick={() => navigate('/book-slot')}
+              onClick={handleBookSlotClick}
               className="mt-6 w-full py-3 bg-primary text-white font-heading font-extrabold text-xs tracking-[1.5px] rounded-xl hover:bg-primary-light transition-all cursor-pointer uppercase shadow-[0_4px_15px_rgba(0,200,83,0.2)]"
             >
-              Book a Slot for This Date →
+              {customer ? 'Book a Slot for This Date →' : 'Login to Book →'}
             </button>
           )}
         </div>
@@ -412,15 +456,25 @@ export default function Home() {
             Reserve your slot online in under 60 seconds and experience top-tier box cricket.
           </p>
           <button
-            onClick={() => navigate('/book-slot')}
+            onClick={handleBookSlotClick}
             className="px-10 py-4 bg-white hover:bg-brand-greyLight text-primary-dark font-heading font-extrabold text-[14px] tracking-[2px] rounded-full hover:scale-105 transition-all cursor-pointer uppercase shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
           >
-            BOOK YOUR SLOT NOW →
+            {customer ? 'BOOK YOUR SLOT NOW →' : '🏏 LOGIN TO BOOK →'}
           </button>
         </div>
       </section>
 
       <Footer />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={() => {
+          setShowLoginModal(false)
+          navigate('/book-slot')
+        }}
+      />
     </div>
   )
 }

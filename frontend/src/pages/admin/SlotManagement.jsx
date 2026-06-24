@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import { Plus, RefreshCw, Trash2, CalendarDays, Clock, IndianRupee } from 'lucide-react'
+import { Plus, RefreshCw, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 import Spinner from '../../components/Spinner'
 import Alert from '../../components/Alert'
@@ -14,6 +14,58 @@ function formatTime(t) {
   if (!t) return ''
   const [h, m] = t.split(':'); const hour = parseInt(h)
   return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`
+}
+
+// Convert HH:MM string to total minutes
+function timeToMinutes(timeStr) {
+  if (!timeStr) return 0
+  const [h, m] = timeStr.split(':').map(Number)
+  return h * 60 + m
+}
+
+// Check all 4 overlap scenarios between a new slot and list of existing slots
+// Returns null if no overlap, or { errorMsg, conflicts[] } if overlap found
+function detectOverlap(startTime, endTime, existingSlots) {
+  if (!startTime || !endTime) return null
+
+  const newStart = timeToMinutes(startTime)
+  const newEnd   = timeToMinutes(endTime)
+
+  if (newEnd <= newStart) return { errorMsg: 'End time must be after start time', conflicts: [] }
+  if ((newEnd - newStart) < 30) return { errorMsg: 'Slot must be minimum 30 minutes long', conflicts: [] }
+
+  const conflicting = existingSlots.filter(slot => {
+    const eStart = timeToMinutes(slot.start_time)
+    const eEnd   = timeToMinutes(slot.end_time)
+    // Overlap iff new_start < existing_end AND new_end > existing_start
+    return newStart < eEnd && newEnd > eStart
+  })
+
+  if (conflicting.length === 0) return null
+
+  // Build human-readable error for first conflict
+  const first = conflicting[0]
+  const fStart = timeToMinutes(first.start_time)
+  const fEnd   = timeToMinutes(first.end_time)
+  let errorMsg = ''
+
+  if (newStart === fStart && newEnd === fEnd) {
+    errorMsg = `A slot already exists from ${first.start_time} to ${first.end_time} on this date`
+  } else if (newStart >= fStart && newEnd <= fEnd) {
+    errorMsg = `New slot falls inside existing slot ${first.start_time}–${first.end_time}`
+  } else if (newStart <= fStart && newEnd >= fEnd) {
+    errorMsg = `New slot overlaps and covers existing slot ${first.start_time}–${first.end_time}`
+  } else if (newStart < fEnd && newStart > fStart) {
+    errorMsg = `Start time ${startTime} falls inside existing slot ${first.start_time}–${first.end_time}`
+  } else {
+    errorMsg = `End time ${endTime} falls inside existing slot ${first.start_time}–${first.end_time}`
+  }
+
+  if (conflicting.length > 1) {
+    errorMsg = `This slot conflicts with ${conflicting.length} existing slots: ${conflicting.map(s => `${s.start_time}–${s.end_time}`).join(', ')}`
+  }
+
+  return { errorMsg, conflicts: conflicting }
 }
 
 const initForm = { date: today, start_time: '06:00', end_time: '07:00', price: '', status: 'available' }
@@ -30,6 +82,12 @@ export default function SlotManagement() {
   const [submitting, setSubmitting] = useState(false)
   const [acting, setActing] = useState(null)
 
+  // Slots existing on the selected date (for overlap checking)
+  const [slotsOnDate, setSlotsOnDate] = useState([])
+  const [loadingDateSlots, setLoadingDateSlots] = useState(false)
+  // Live overlap detection result
+  const [overlapResult, setOverlapResult] = useState(null) // null | { errorMsg, conflicts[] }
+
   const load = async () => {
     setLoading(true)
     setError('')
@@ -44,16 +102,57 @@ export default function SlotManagement() {
     }
   }
 
+  useEffect(() => { load() }, [filterDate])
+
+  // Fetch slots for the selected date whenever form.date changes
+  const fetchSlotsOnDate = useCallback(async (date) => {
+    if (!date) { setSlotsOnDate([]); return }
+    setLoadingDateSlots(true)
+    try {
+      const { data } = await axios.get(`${API_URL}/slots?date=${date}`)
+      setSlotsOnDate(data.data || [])
+    } catch {
+      setSlotsOnDate([])
+    } finally {
+      setLoadingDateSlots(false)
+    }
+  }, [])
+
+  // Whenever slotsOnDate OR times change, re-run overlap detection
   useEffect(() => {
-    load()
-  }, [filterDate])
+    const result = detectOverlap(form.start_time, form.end_time, slotsOnDate)
+    setOverlapResult(result)
+  }, [form.start_time, form.end_time, slotsOnDate])
+
+  // When date changes — reset overlap + fetch new date's slots
+  const handleDateChange = (date) => {
+    setForm(f => ({ ...f, date }))
+    setOverlapResult(null)
+    fetchSlotsOnDate(date)
+  }
+
+  // Open modal — seed default date slots
+  const openModal = () => {
+    setModalOpen(true)
+    setFormErr('')
+    setForm(initForm)
+    setOverlapResult(null)
+    fetchSlotsOnDate(today)
+  }
 
   const handleCreate = async (e) => {
     e.preventDefault()
+
+    // Block if overlap detected
+    if (overlapResult) {
+      setFormErr(overlapResult.errorMsg || 'Please fix time conflicts before creating')
+      return
+    }
     if (!form.price) {
       setFormErr('Price is required')
       return
     }
+
     setSubmitting(true)
     setFormErr('')
     try {
@@ -63,7 +162,16 @@ export default function SlotManagement() {
       setForm(initForm)
       load()
     } catch (e) {
-      setFormErr(e.response?.data?.message || 'Failed to create slot')
+      if (e.response?.status === 409) {
+        const conflict = e.response.data.conflict
+        const existSlots = conflict?.slots || []
+        const slotStr = existSlots.map(s => `${s.start_time}–${s.end_time}`).join(', ')
+        setFormErr(
+          `${e.response.data.message}${slotStr ? ` (${slotStr})` : ''}`
+        )
+      } else {
+        setFormErr(e.response?.data?.message || 'Failed to create slot')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -96,6 +204,21 @@ export default function SlotManagement() {
     }
   }
 
+  // Timeline helper: compute % position on an 06:00–22:00 bar (960 mins total)
+  const TIMELINE_START = 6 * 60   // 06:00
+  const TIMELINE_END   = 22 * 60  // 22:00
+  const TIMELINE_RANGE = TIMELINE_END - TIMELINE_START
+
+  function toPercent(mins) {
+    return Math.max(0, Math.min(100, ((mins - TIMELINE_START) / TIMELINE_RANGE) * 100))
+  }
+
+  const newStartMins = timeToMinutes(form.start_time)
+  const newEndMins   = timeToMinutes(form.end_time)
+  const newSlotValid = newEndMins > newStartMins && (newEndMins - newStartMins) >= 30
+  const newSlotLeft  = toPercent(newStartMins)
+  const newSlotWidth = toPercent(newEndMins) - newSlotLeft
+
   return (
     <div className="flex min-h-screen bg-brand-dark text-white">
       <AdminSidebar />
@@ -124,7 +247,7 @@ export default function SlotManagement() {
             )}
             <button
               id="add-slot-btn"
-              onClick={() => { setModalOpen(true); setFormErr(''); setForm(initForm) }}
+              onClick={openModal}
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white font-heading font-bold text-[12px] tracking-wider rounded-xl hover:scale-105 transition-all shadow-[0_4px_12px_rgba(0,200,83,0.2)] cursor-pointer uppercase"
             >
               <Plus size={14} />
@@ -222,9 +345,13 @@ export default function SlotManagement() {
           </div>
         )}
 
+        {/* ── Create Slot Modal ─────────────────────────────────────── */}
         <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create New Slot">
           {formErr && <Alert type="error" message={formErr} onClose={() => setFormErr('')} />}
+
           <form onSubmit={handleCreate} className="space-y-4">
+
+            {/* DATE */}
             <div>
               <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
                 MATCH DATE *
@@ -233,11 +360,131 @@ export default function SlotManagement() {
                 type="date"
                 value={form.date}
                 min={today}
-                onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                onChange={e => handleDateChange(e.target.value)}
                 className="w-full bg-brand-greyDark border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all cursor-pointer font-sans"
               />
             </div>
 
+            {/* EXISTING SLOTS ON DATE */}
+            <div>
+              {loadingDateSlots ? (
+                <div className="flex items-center gap-2 py-1">
+                  <Spinner size="sm" />
+                  <span className="text-xs text-white/40 font-sans">Checking existing slots…</span>
+                </div>
+              ) : slotsOnDate.length > 0 ? (
+                <div>
+                  <p className="font-accent text-[10px] font-bold text-secondary tracking-[1.5px] uppercase mb-2">
+                    EXISTING SLOTS ON THIS DATE
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {slotsOnDate.map(slot => (
+                      <span
+                        key={slot.id}
+                        style={{
+                          background: 'rgba(220,38,38,0.15)',
+                          border: '1px solid rgba(220,38,38,0.4)',
+                          borderRadius: '20px',
+                          padding: '4px 12px',
+                          color: '#ff4444',
+                          fontSize: '12px',
+                          fontFamily: 'monospace',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {slot.start_time} – {slot.end_time}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p style={{ color: 'rgba(0,200,83,0.7)', fontSize: '12px', fontStyle: 'italic', fontFamily: 'Inter, sans-serif' }}>
+                  No slots yet on this date — you can add freely
+                </p>
+              )}
+            </div>
+
+            {/* VISUAL TIMELINE */}
+            <div>
+              <p className="font-accent text-[10px] font-bold text-white/40 tracking-[1.5px] uppercase mb-1.5">
+                TIMELINE (6 AM – 10 PM)
+              </p>
+              <div
+                style={{
+                  position: 'relative',
+                  height: '28px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                {/* Existing slot blocks */}
+                {slotsOnDate.map(slot => {
+                  const sL = toPercent(timeToMinutes(slot.start_time))
+                  const sW = toPercent(timeToMinutes(slot.end_time)) - sL
+                  if (sW <= 0) return null
+                  return (
+                    <div
+                      key={slot.id}
+                      title={`${slot.start_time} – ${slot.end_time} (${slot.status})`}
+                      style={{
+                        position: 'absolute',
+                        left: `${sL}%`,
+                        width: `${sW}%`,
+                        top: '4px',
+                        bottom: '4px',
+                        background: 'rgba(220,38,38,0.55)',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(220,38,38,0.8)',
+                      }}
+                    />
+                  )
+                })}
+
+                {/* New slot preview block */}
+                {newSlotValid && newSlotWidth > 0 && (
+                  <div
+                    title={`New slot: ${form.start_time} – ${form.end_time}`}
+                    style={{
+                      position: 'absolute',
+                      left: `${newSlotLeft}%`,
+                      width: `${newSlotWidth}%`,
+                      top: '4px',
+                      bottom: '4px',
+                      background: overlapResult ? 'rgba(220,38,38,0.8)' : 'rgba(0,200,83,0.7)',
+                      borderRadius: '8px',
+                      border: overlapResult ? '1px solid #ff4444' : '1px solid #00c853',
+                      transition: 'all 0.3s ease',
+                      animation: overlapResult ? 'pulse 1s infinite' : 'none',
+                      zIndex: 2,
+                    }}
+                  />
+                )}
+
+                {/* Hour markers */}
+                {[6, 9, 12, 15, 18, 21].map(h => (
+                  <div
+                    key={h}
+                    style={{
+                      position: 'absolute',
+                      left: `${toPercent(h * 60)}%`,
+                      top: 0,
+                      bottom: 0,
+                      width: '1px',
+                      background: 'rgba(255,255,255,0.1)',
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between mt-1 px-1">
+                {['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '10PM'].map(t => (
+                  <span key={t} style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>{t}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* START + END TIME */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
@@ -263,6 +510,40 @@ export default function SlotManagement() {
               </div>
             </div>
 
+            {/* OVERLAP / VALID FEEDBACK */}
+            {overlapResult ? (
+              <div style={{
+                background: 'rgba(220,38,38,0.10)',
+                border: '1px solid rgba(220,38,38,0.4)',
+                borderRadius: '10px',
+                padding: '12px 16px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+              }}>
+                <AlertTriangle size={16} style={{ color: '#ff4444', flexShrink: 0, marginTop: '1px' }} />
+                <p style={{ color: '#ff4444', fontSize: '13px', fontFamily: 'Inter, sans-serif', margin: 0, lineHeight: 1.5 }}>
+                  {overlapResult.errorMsg}
+                </p>
+              </div>
+            ) : (form.start_time && form.end_time && newSlotValid) ? (
+              <div style={{
+                background: 'rgba(0,200,83,0.08)',
+                border: '1px solid rgba(0,200,83,0.3)',
+                borderRadius: '10px',
+                padding: '8px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                <CheckCircle2 size={14} style={{ color: '#00c853', flexShrink: 0 }} />
+                <p style={{ color: '#00c853', fontSize: '12px', fontFamily: 'Inter, sans-serif', margin: 0 }}>
+                  Time slot is available — no conflicts
+                </p>
+              </div>
+            ) : null}
+
+            {/* PRICE + STATUS */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block font-accent text-xs font-bold text-secondary tracking-[1.5px] uppercase mb-1.5">
@@ -292,6 +573,7 @@ export default function SlotManagement() {
               </div>
             </div>
 
+            {/* ACTION BUTTONS */}
             <div className="flex gap-4 pt-4">
               <button
                 type="button"
@@ -300,23 +582,54 @@ export default function SlotManagement() {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-[2] py-3.5 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white font-heading font-extrabold text-[12px] tracking-wider rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(0,200,83,0.3)] cursor-pointer uppercase"
-              >
-                {submitting ? (
-                  <>
-                    <Spinner size="sm" color="white" />
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  <span>+ Create Slot</span>
-                )}
-              </button>
+
+              {/* Submit button — disabled & styled differently when overlap exists */}
+              {overlapResult ? (
+                <button
+                  type="button"
+                  disabled
+                  style={{
+                    flex: 2,
+                    padding: '14px 0',
+                    background: 'rgba(100,100,100,0.25)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    color: 'rgba(255,255,255,0.35)',
+                    fontSize: '12px',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 800,
+                    letterSpacing: '0.1em',
+                    cursor: 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  <AlertTriangle size={14} />
+                  TIME CONFLICT — CANNOT CREATE
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-[2] py-3.5 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white font-heading font-extrabold text-[12px] tracking-wider rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(0,200,83,0.3)] cursor-pointer uppercase"
+                >
+                  {submitting ? (
+                    <>
+                      <Spinner size="sm" color="white" />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    <span>+ Create Slot</span>
+                  )}
+                </button>
+              )}
             </div>
           </form>
         </Modal>
+
       </main>
     </div>
   )
