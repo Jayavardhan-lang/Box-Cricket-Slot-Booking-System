@@ -1,96 +1,69 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER,
+const pool = new Pool({
+  host:     process.env.DB_HOST,
+  port:     parseInt(process.env.DB_PORT) || 5432,
+  user:     process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-
-  connectTimeout: 10000,
+  // Required for Supabase (SSL-enforced)
+  ssl: process.env.DB_SSL === 'false'
+    ? false
+    : { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
-const fs = require('fs');
-const path = require('path');
+pool.on('connect', () => {
+  console.log('✅ Connected to Supabase PostgreSQL');
+});
 
-async function initializeDatabase(pool) {
-  let conn;
+pool.on('error', (err) => {
+  console.error('❌ Unexpected database error:', err.message);
+});
+
+// Test connection + auto-initialize schema on startup
+async function initializeDatabase() {
+  let client;
   try {
-    conn = await pool.getConnection();
-    console.log('✅ MySQL Database connected successfully');
+    client = await pool.connect();
+    console.log('✅ PostgreSQL Database connected successfully');
 
-    const [tables] = await conn.query("SHOW TABLES LIKE 'customers'");
-    if (tables.length > 0) {
+    // Check if tables already exist
+    const { rows } = await client.query(
+      `SELECT table_name FROM information_schema.tables
+       WHERE table_schema = 'public' AND table_name = 'customers'`
+    );
+
+    if (rows.length > 0) {
       console.log('✨ Database tables already exist. Skipping schema initialization.');
       return;
     }
 
     console.log('🔄 Database is empty. Auto-initializing schema from schema.sql...');
 
+    const fs   = require('fs');
+    const path = require('path');
     const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+
     if (!fs.existsSync(schemaPath)) {
-      console.warn('⚠️ schema.sql not found at', schemaPath);
+      console.warn('⚠️  schema.sql not found at', schemaPath);
       return;
     }
 
     const sqlContent = fs.readFileSync(schemaPath, 'utf8');
-
-    const statements = sqlContent
-      .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => {
-
-        const clean = stmt.replace(/--.*$/gm, '').trim();
-        return clean.length > 0;
-      });
-
-    for (let statement of statements) {
-
-      const cleanStmt = statement
-        .split('\n')
-        .map(line => line.replace(/--.*$/, '').trim())
-        .filter(line => line.length > 0)
-        .join(' ')
-        .trim();
-
-      if (!cleanStmt) continue;
-
-      if (cleanStmt.toUpperCase().startsWith('CREATE DATABASE') || cleanStmt.toUpperCase().startsWith('USE ')) {
-        console.log(`ℹ️ Skipping database creation/selection statement: ${cleanStmt}`);
-        continue;
-      }
-
-      try {
-        await conn.query(cleanStmt);
-      } catch (err) {
-        console.error(`❌ Error executing SQL statement: ${cleanStmt.substring(0, 100)}...`);
-        console.error(`   Details: ${err.message}`);
-        throw err;
-      }
-    }
-
+    await client.query(sqlContent);
     console.log('✅ Database schema and seed data initialized successfully!');
+
   } catch (err) {
     console.error('❌ Database initialization failed:', err.message);
   } finally {
-    if (conn) conn.release();
+    if (client) client.release();
   }
 }
 
-pool.getConnection()
-  .then((conn) => {
-    conn.release();
-    initializeDatabase(pool);
-  })
-  .catch((err) => {
-    console.error('❌ Database connection failed:', err.message);
-    console.error('   → Make sure your local or Railway MySQL server is running and .env is correct.');
-  });
+initializeDatabase();
 
 module.exports = pool;

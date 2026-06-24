@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 const createBooking = async (req, res) => {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
     const {
       name, phone, email, customer_type = 'player',
@@ -23,58 +23,58 @@ const createBooking = async (req, res) => {
       });
     }
 
-    await conn.beginTransaction();
+    await client.query('BEGIN');
 
-    const [slotRows] = await conn.query(
-      "SELECT * FROM slots WHERE id = ? AND status = 'available'",
+    const slotResult = await client.query(
+      "SELECT * FROM slots WHERE id = $1 AND status = 'available'",
       [slot_id]
     );
-    if (slotRows.length === 0) {
-      await conn.rollback();
+    if (slotResult.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({
         success: false,
         message: 'Slot already booked or not available',
       });
     }
-    const slot = slotRows[0];
+    const slot = slotResult.rows[0];
 
-    const [existingCustomer] = await conn.query(
-      'SELECT * FROM customers WHERE phone = ?',
+    const existingCustomer = await client.query(
+      'SELECT * FROM customers WHERE phone = $1',
       [phone]
     );
 
     let customerId;
-    if (existingCustomer.length > 0) {
-      customerId = existingCustomer[0].id;
+    if (existingCustomer.rows.length > 0) {
+      customerId = existingCustomer.rows[0].id;
     } else {
-      const [customerResult] = await conn.query(
-        'INSERT INTO customers (name, phone, email, customer_type) VALUES (?, ?, ?, ?)',
+      const customerResult = await client.query(
+        'INSERT INTO customers (name, phone, email, customer_type) VALUES ($1, $2, $3, $4) RETURNING id',
         [name, phone, email || null, customer_type]
       );
-      customerId = customerResult.insertId;
+      customerId = customerResult.rows[0].id;
     }
 
     const totalAmount = parseFloat(slot.price);
-    const [bookingResult] = await conn.query(
-      `INSERT INTO bookings 
+    const bookingResult = await client.query(
+      `INSERT INTO bookings
        (customer_id, slot_id, team_name, num_players, total_amount, booking_status, payment_status, notes)
-       VALUES (?, ?, ?, ?, ?, 'pending', 'pending', ?)`,
+       VALUES ($1, $2, $3, $4, $5, 'pending', 'pending', $6) RETURNING id`,
       [customerId, slot_id, team_name, players, totalAmount, notes || null]
     );
-    const bookingId = bookingResult.insertId;
+    const bookingId = bookingResult.rows[0].id;
 
-    await conn.query(
-      "UPDATE slots SET status = 'booked' WHERE id = ?",
+    await client.query(
+      "UPDATE slots SET status = 'booked' WHERE id = $1",
       [slot_id]
     );
 
-    await conn.query(
+    await client.query(
       `INSERT INTO occupancy (slot_id, date, is_occupied, revenue_generated)
-       VALUES (?, ?, TRUE, ?)`,
+       VALUES ($1, $2, TRUE, $3)`,
       [slot_id, slot.date, totalAmount]
     );
 
-    await conn.commit();
+    await client.query('COMMIT');
 
     res.status(201).json({
       success: true,
@@ -82,18 +82,18 @@ const createBooking = async (req, res) => {
       message: 'Booking created successfully',
     });
   } catch (error) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     console.error('createBooking error:', error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
-    conn.release();
+    client.release();
   }
 };
 
 const getAllBookings = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT b.*, 
+    const result = await pool.query(
+      `SELECT b.*,
               c.name AS customer_name, c.phone, c.email,
               s.date, s.start_time, s.end_time, s.price
        FROM bookings b
@@ -101,7 +101,7 @@ const getAllBookings = async (req, res) => {
        JOIN slots s ON b.slot_id = s.id
        ORDER BY b.booked_at DESC`
     );
-    res.json({ success: true, data: rows, message: 'Bookings fetched successfully' });
+    res.json({ success: true, data: result.rows, message: 'Bookings fetched successfully' });
   } catch (error) {
     console.error('getAllBookings error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -111,29 +111,29 @@ const getAllBookings = async (req, res) => {
 const getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await pool.query(
-      `SELECT b.*, 
+    const result = await pool.query(
+      `SELECT b.*,
               c.name AS customer_name, c.phone, c.email, c.customer_type,
               s.date, s.start_time, s.end_time, s.price
        FROM bookings b
        JOIN customers c ON b.customer_id = c.id
        JOIN slots s ON b.slot_id = s.id
-       WHERE b.id = ?`,
+       WHERE b.id = $1`,
       [id]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    const [payments] = await pool.query(
-      'SELECT * FROM payments WHERE booking_id = ? ORDER BY paid_at DESC',
+    const payments = await pool.query(
+      'SELECT * FROM payments WHERE booking_id = $1 ORDER BY paid_at DESC',
       [id]
     );
 
     res.json({
       success: true,
-      data: { ...rows[0], payments },
+      data: { ...result.rows[0], payments: payments.rows },
       message: 'Booking fetched successfully',
     });
   } catch (error) {
@@ -145,18 +145,17 @@ const getBookingById = async (req, res) => {
 const getBookingsByPhone = async (req, res) => {
   try {
     const { phone } = req.params;
-    const [rows] = await pool.query(
-      `SELECT b.*, 
+    const result = await pool.query(
+      `SELECT b.*,
               s.date, s.start_time, s.end_time, s.price
        FROM bookings b
        JOIN customers c ON b.customer_id = c.id
        JOIN slots s ON b.slot_id = s.id
-       WHERE c.phone = ?
+       WHERE c.phone = $1
        ORDER BY b.booked_at DESC`,
       [phone]
     );
-
-    res.json({ success: true, data: rows, message: 'Bookings fetched for phone' });
+    res.json({ success: true, data: result.rows, message: 'Bookings fetched for phone' });
   } catch (error) {
     console.error('getBookingsByPhone error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -164,7 +163,7 @@ const getBookingsByPhone = async (req, res) => {
 };
 
 const updateBookingStatus = async (req, res) => {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -177,31 +176,30 @@ const updateBookingStatus = async (req, res) => {
       });
     }
 
-    const [existing] = await conn.query('SELECT * FROM bookings WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    const existing = await client.query('SELECT * FROM bookings WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    await conn.beginTransaction();
+    await client.query('BEGIN');
 
     if (status === 'cancelled') {
-      await conn.query(
-        "UPDATE slots SET status = 'available' WHERE id = ?",
-        [existing[0].slot_id]
+      await client.query(
+        "UPDATE slots SET status = 'available' WHERE id = $1",
+        [existing.rows[0].slot_id]
       );
-
-      await conn.query(
-        'DELETE FROM occupancy WHERE slot_id = ?',
-        [existing[0].slot_id]
+      await client.query(
+        'DELETE FROM occupancy WHERE slot_id = $1',
+        [existing.rows[0].slot_id]
       );
     }
 
-    await conn.query(
-      'UPDATE bookings SET booking_status = ? WHERE id = ?',
+    await client.query(
+      'UPDATE bookings SET booking_status = $1 WHERE id = $2',
       [status, id]
     );
 
-    await conn.commit();
+    await client.query('COMMIT');
 
     res.json({
       success: true,
@@ -209,16 +207,16 @@ const updateBookingStatus = async (req, res) => {
       message: `Booking status updated to ${status}`,
     });
   } catch (error) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     console.error('updateBookingStatus error:', error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
-    conn.release();
+    client.release();
   }
 };
 
 const updatePaymentStatus = async (req, res) => {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     const { payment_status, payment_method = 'cash', amount } = req.body;
@@ -231,27 +229,27 @@ const updatePaymentStatus = async (req, res) => {
       });
     }
 
-    const [existing] = await conn.query('SELECT * FROM bookings WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    const existing = await client.query('SELECT * FROM bookings WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    const paymentAmount = amount || existing[0].total_amount;
+    const paymentAmount = amount || existing.rows[0].total_amount;
 
-    await conn.beginTransaction();
+    await client.query('BEGIN');
 
-    await conn.query(
-      'UPDATE bookings SET payment_status = ? WHERE id = ?',
+    await client.query(
+      'UPDATE bookings SET payment_status = $1 WHERE id = $2',
       [payment_status, id]
     );
 
-    await conn.query(
+    await client.query(
       `INSERT INTO payments (booking_id, amount, payment_method, payment_status)
-       VALUES (?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4)`,
       [id, paymentAmount, payment_method, payment_status]
     );
 
-    await conn.commit();
+    await client.query('COMMIT');
 
     res.json({
       success: true,
@@ -259,11 +257,11 @@ const updatePaymentStatus = async (req, res) => {
       message: 'Payment status updated successfully',
     });
   } catch (error) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     console.error('updatePaymentStatus error:', error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
-    conn.release();
+    client.release();
   }
 };
 

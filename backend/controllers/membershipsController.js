@@ -7,7 +7,7 @@ const PLAN_PRICES = {
 };
 
 const createMembership = async (req, res) => {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
     const { name, phone, email, customer_type = 'player', plan_name = 'basic', start_date } = req.body;
 
@@ -26,22 +26,22 @@ const createMembership = async (req, res) => {
       });
     }
 
-    await conn.beginTransaction();
+    await client.query('BEGIN');
 
-    const [existingCustomer] = await conn.query(
-      'SELECT * FROM customers WHERE phone = ?',
+    const existingCustomer = await client.query(
+      'SELECT * FROM customers WHERE phone = $1',
       [phone]
     );
 
     let customerId;
-    if (existingCustomer.length > 0) {
-      customerId = existingCustomer[0].id;
+    if (existingCustomer.rows.length > 0) {
+      customerId = existingCustomer.rows[0].id;
     } else {
-      const [customerResult] = await conn.query(
-        'INSERT INTO customers (name, phone, email, customer_type) VALUES (?, ?, ?, ?)',
+      const customerResult = await client.query(
+        'INSERT INTO customers (name, phone, email, customer_type) VALUES ($1, $2, $3, $4) RETURNING id',
         [name, phone, email || null, customer_type]
       );
-      customerId = customerResult.insertId;
+      customerId = customerResult.rows[0].id;
     }
 
     const membershipStart = start_date || new Date().toISOString().split('T')[0];
@@ -51,18 +51,18 @@ const createMembership = async (req, res) => {
 
     const amount = PLAN_PRICES[plan_name];
 
-    const [result] = await conn.query(
+    const result = await client.query(
       `INSERT INTO memberships (customer_id, plan_name, start_date, end_date, status, amount_paid)
-       VALUES (?, ?, ?, ?, 'active', ?)`,
+       VALUES ($1, $2, $3, $4, 'active', $5) RETURNING id`,
       [customerId, plan_name, membershipStart, membershipEnd, amount]
     );
 
-    await conn.commit();
+    await client.query('COMMIT');
 
     res.status(201).json({
       success: true,
       data: {
-        membershipId: result.insertId,
+        membershipId: result.rows[0].id,
         customerId,
         plan_name,
         start_date: membershipStart,
@@ -72,23 +72,23 @@ const createMembership = async (req, res) => {
       message: 'Membership created successfully',
     });
   } catch (error) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     console.error('createMembership error:', error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
-    conn.release();
+    client.release();
   }
 };
 
 const getAllMemberships = async (req, res) => {
   try {
-    const [rows] = await pool.query(
+    const result = await pool.query(
       `SELECT m.*, c.name, c.phone, c.email, c.customer_type
        FROM memberships m
        JOIN customers c ON m.customer_id = c.id
        ORDER BY m.start_date DESC`
     );
-    res.json({ success: true, data: rows, message: 'Memberships fetched successfully' });
+    res.json({ success: true, data: result.rows, message: 'Memberships fetched successfully' });
   } catch (error) {
     console.error('getAllMemberships error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -98,19 +98,19 @@ const getAllMemberships = async (req, res) => {
 const getMembershipById = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await pool.query(
+    const result = await pool.query(
       `SELECT m.*, c.name, c.phone, c.email, c.customer_type
        FROM memberships m
        JOIN customers c ON m.customer_id = c.id
-       WHERE m.id = ?`,
+       WHERE m.id = $1`,
       [id]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Membership not found' });
     }
 
-    res.json({ success: true, data: rows[0], message: 'Membership fetched successfully' });
+    res.json({ success: true, data: result.rows[0], message: 'Membership fetched successfully' });
   } catch (error) {
     console.error('getMembershipById error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -130,12 +130,12 @@ const updateMembership = async (req, res) => {
       });
     }
 
-    const [existing] = await pool.query('SELECT * FROM memberships WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    const existing = await pool.query('SELECT * FROM memberships WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Membership not found' });
     }
 
-    await pool.query('UPDATE memberships SET status = ? WHERE id = ?', [status, id]);
+    await pool.query('UPDATE memberships SET status = $1 WHERE id = $2', [status, id]);
 
     res.json({ success: true, data: { id, status }, message: 'Membership updated successfully' });
   } catch (error) {
